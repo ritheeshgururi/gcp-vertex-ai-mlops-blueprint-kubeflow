@@ -1,0 +1,22 @@
+docker build -t us-central1-docker.pkg.dev/ritheesh/base-images/my-base-image:v55 .
+docker push us-central1-docker.pkg.dev/ritheesh/base-images/my-base-image:v55
+docker run -it us-central1-docker.pkg.dev/ritheesh/base-images/my-base-image:v55 /bin/bash
+
+
+
+
+
+
+
+
+
+
+
+docker buildx build --platform linux/amd64 -t base_image:v8 .
+docker tag base_image:v8 us-central1-docker.pkg.dev/ritheesh/base-images/base_image:v8
+docker push us-central1-docker.pkg.dev/ritheesh/base-images/base_image:v8
+
+
+docker buildx build --platform linux/amd64 -t target_image:v8 .
+docker tag target_image:v8 us-central1-docker.pkg.dev/ritheesh/containerized-target-images/target_image:v8
+docker push us-central1-docker.pkg.dev/ritheesh/containerized-target-images/target_image:v8

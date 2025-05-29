@@ -1,0 +1,35 @@
+stages:
+  - deploy
+  - trigger
+
+variables:
+  GCP_PROJECT_ID: gcp-vertexai-mlops-blueprint
+  GCP_REGION: us-central1
+
+deploy:
+  stage: deploy
+  image: python:slim-bookworm
+  services:
+    - docker:27.5.1-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  before_script:
+    # Installing Docker CLI
+    - apt-get update -y
+    - apt-get install -y curl jq docker.io
+    - |
+      ACCESS_TOKEN=$(curl -s -H "Metadata-Flavor: Google" "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token" | jq -r '.access_token')
+    - echo $ACCESS_TOKEN | docker login -u oauth2accesstoken --password-stdin https://$GCP_REGION-docker.pkg.dev
+    # Installing Python dependencies
+    - pip install --no-cache-dir -r requirements.txt
+  script:
+    - python3 helper.py
+  rules:
+    - if: ($CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH)
+
+trigger:
+  stage: trigger
+  trigger:
+    project: gcp-vertexai-mlops-blueprint/training_pipeline
+    branch: main
