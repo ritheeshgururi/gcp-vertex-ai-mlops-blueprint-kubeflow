@@ -4,16 +4,16 @@ BASE_IMAGE_PATH = get_base_image_path()
 
 class Root:
     DISPLAY_NAME = "timeseries-tft-training-pipeline"
-    PIPELINE_ROOT = f"gs://vertex-pipeline-root"
+    PIPELINE_ROOT = f"gs://vertex-pipeline-root-training"
     PIPELINE_PACKAGE_YAML_PATH = "compiled_pipeline_yaml/training_pipeline.yaml"
     DESCRIPTION = "End to end pipeline for training the Temporal Fusion Transformer model"
 
 class ProjectConfig:
     PROJECT_ID = "gcp-vertexai-mlops-blueprint"
     LOCATION = "asia-south1"
-    ARTIFACT_BUCKET = "tft-training-pipeline-output-artifacts"
-    DATA_BUCKET = "stallion-data"
-    DATA_PATH = "merged_dataset.csv"
+    ARTIFACT_BUCKET = "training-pipeline-output-artifacts"
+    DATA_BUCKET = "volume-forecasting-data"
+    DATA_PATH = "original_merged_dataset.csv"
     
 class ExperimentConfig:
     EXPERIMENT_NAME = "tft-training-experiment-1"
@@ -65,17 +65,17 @@ class BaseImages:
     MACHINE_BASE_IMAGE = f"{BASE_IMAGE_PATH}"
     
 # class TargetImages:
-#     PREPROCESS_IMAGE = "us-central1-docker.pkg.dev/ritheesh/containerized-target-images/target_image:v10"
-#     DATALOADER_IMAGE = "us-central1-docker.pkg.dev/ritheesh/test-123/dataloader_component"
-#     HPT_IMAGE = "us-central1-docker.pkg.dev/ritheesh/test-123/hpt_component"
-#     TRAINING_IMAGE = "us-central1-docker.pkg.dev/ritheesh/test-123/training_component"
+#     PREPROCESS_IMAGE = "asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/target_image:v10"
+#     DATALOADER_IMAGE = "asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/dataloader_component"
+#     HPT_IMAGE = "asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/hpt_component"
+#     TRAINING_IMAGE = "asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/training_component"
     
 class ComputeResources:
-    PREPROCESS_MACHINE_TYPE = "n2-standard-4"
-    DATALOADER_MACHINE_TYPE = "n2-standard-4"
-    HPT_MACHINE_TYPE = "n2-standard-4"
-    TRAINING_MACHINE_TYPE = "n2-standard-4"
-    DEPLOY_MACHINE_TYPE = "n2-standard-32"
+    PREPROCESS_MACHINE_TYPE = "e2-standard-4"
+    DATALOADER_MACHINE_TYPE = "e2-standard-4"
+    HPT_MACHINE_TYPE = "e2-standard-4"
+    TRAINING_MACHINE_TYPE = "e2-standard-4"
+    DEPLOY_MACHINE_TYPE = "e2-standard-4"
     
 class NotificationEmail:
     RECIPIENTS_LIST = ["ritheeshgururi187@gmail.com"]

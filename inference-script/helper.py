@@ -34,7 +34,7 @@ def main():
     print("Local Model Build complete")
 
     local_model.push_image()
-    print("Local Model Pushed to Registry")
+    print("Local Model Pushed to Aritfact Registry")
     
     
 if __name__ == "__main__":

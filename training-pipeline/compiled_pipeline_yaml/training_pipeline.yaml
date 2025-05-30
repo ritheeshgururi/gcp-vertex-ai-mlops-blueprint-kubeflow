@@ -1,0 +1,1086 @@
+# PIPELINE DEFINITION
+# Name: timeseries-tft-training-pipeline
+# Description: End to end pipeline for training the Temporal Fusion Transformer model
+# Inputs:
+#    location: str
+#    project: str
+#    vertex_experiment_name: str
+#    vertex_run_name: str
+components:
+  comp-dataloader-component:
+    executorLabel: exec-dataloader-component
+    inputDefinitions:
+      artifacts:
+        preprocessed_data_input:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        artifact_bucket:
+          parameterType: STRING
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          defaultValue: DataLoader Pipeline
+          isOptional: true
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          parameterType: STRING
+        max_wait_duration:
+          defaultValue: 86400s
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        persistent_resource_id:
+          defaultValue: '{{$.pipeline_persistent_resource_id}}'
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        reserved_ip_ranges:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com
+          isOptional: true
+          parameterType: STRING
+        strategy:
+          defaultValue: STANDARD
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        vertex_experiment_name:
+          parameterType: STRING
+        vertex_run_name:
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue:
+          - container_spec:
+              args:
+              - --executor_input
+              - '{{$.json_escape[1]}}'
+              - --function_to_execute
+              - dataloader_component
+              command:
+              - sh
+              - -c
+              - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip\
+                \ || python3 -m ensurepip --user || apt-get install python3-pip\n\
+                fi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet\
+                \ --no-warn-script-location 'kfp==2.13.0' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+                \ python_version<\"3.9\"'  &&  python3 -m pip install --quiet --no-warn-script-location\
+                \ 'pandas' 'numpy' 'pytorch_forecasting' 'torch' 'google-cloud-storage'\
+                \ 'google-cloud-aiplatform' && \"$0\" \"$@\"\n"
+              - sh
+              - -ec
+              - 'program_path=$(mktemp -d)
+
+
+                printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+                _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+                '
+              - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
+                \ import *\n\ndef dataloader_component(\n    project: str,\n    location:\
+                \ str,\n    artifact_bucket: str,\n    vertex_experiment_name: str,\n\
+                \    vertex_run_name: str,\n    preprocessed_data_input: dsl.Input[dsl.Dataset],\n\
+                \    training_output: dsl.Output[dsl.Dataset],\n    train_loader_output:\
+                \ dsl.Output[dsl.Dataset],\n    val_loader_output: dsl.Output[dsl.Dataset],\n\
+                ): \n    from steps.dataloader_step import dataloader_step\n\n   \
+                \ dataloader_step(\n        project = project,\n        location =\
+                \ location,\n        artifact_bucket = artifact_bucket,\n        vertex_experiment_name\
+                \ = vertex_experiment_name,\n        vertex_run_name = vertex_run_name,\n\
+                \        preprocessed_data_input = preprocessed_data_input.path,\n\
+                \        training_output = training_output.path,\n        train_loader_output\
+                \ = train_loader_output.path,\n        val_loader_output = val_loader_output.path,\n\
+                \    )\n\n"
+              env: []
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v1
+            disk_spec:
+              boot_disk_size_gb: 100.0
+              boot_disk_type: pd-ssd
+            machine_spec:
+              machine_type: e2-standard-4
+            replica_count: 1.0
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        train_loader_output:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        training_output:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        val_loader_output:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-deploy-and-monitor-component:
+    executorLabel: exec-deploy-and-monitor-component
+    inputDefinitions:
+      parameters:
+        artifact_bucket:
+          parameterType: STRING
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          defaultValue: Deploy and Monitor Pipeline
+          isOptional: true
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          parameterType: STRING
+        max_wait_duration:
+          defaultValue: 86400s
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        persistent_resource_id:
+          defaultValue: '{{$.pipeline_persistent_resource_id}}'
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        reserved_ip_ranges:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com
+          isOptional: true
+          parameterType: STRING
+        strategy:
+          defaultValue: STANDARD
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        vertex_run_name:
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue:
+          - container_spec:
+              args:
+              - --executor_input
+              - '{{$.json_escape[1]}}'
+              - --function_to_execute
+              - deploy_and_monitor_component
+              command:
+              - sh
+              - -c
+              - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip\
+                \ || python3 -m ensurepip --user || apt-get install python3-pip\n\
+                fi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet\
+                \ --no-warn-script-location 'kfp==2.13.0' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+                \ python_version<\"3.9\"'  &&  python3 -m pip install --quiet --no-warn-script-location\
+                \ 'pandas' 'google-cloud-storage' 'google-cloud-aiplatform' 'fastapi'\
+                \ && \"$0\" \"$@\"\n"
+              - sh
+              - -ec
+              - 'program_path=$(mktemp -d)
+
+
+                printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+                _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+                '
+              - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
+                \ import *\n\ndef deploy_and_monitor_component(\n    project: str,\n\
+                \    location: str,\n    artifact_bucket: str,\n    vertex_run_name:\
+                \ str\n\n):\n    from steps.deploy_and_monitor_step import deploy_and_monitor_step\n\
+                \n    deploy_and_monitor_step(\n        project = project,\n     \
+                \   location = location,\n        artifact_bucket = artifact_bucket,\n\
+                \        vertex_run_name = vertex_run_name\n    )\n\n"
+              env: []
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v1
+            disk_spec:
+              boot_disk_size_gb: 100.0
+              boot_disk_type: pd-ssd
+            machine_spec:
+              machine_type: e2-standard-4
+            replica_count: 1.0
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-exit-handler-1:
+    dag:
+      tasks:
+        dataloader-component:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-dataloader-component
+          dependentTasks:
+          - preprocess-component
+          inputs:
+            artifacts:
+              preprocessed_data_input:
+                taskOutputArtifact:
+                  outputArtifactKey: preprocessed_data
+                  producerTask: preprocess-component
+            parameters:
+              artifact_bucket:
+                runtimeValue:
+                  constant: training-pipeline-output-artifacts
+              location:
+                componentInputParameter: pipelinechannel--location
+              project:
+                componentInputParameter: pipelinechannel--project
+              vertex_experiment_name:
+                componentInputParameter: pipelinechannel--vertex_experiment_name
+              vertex_run_name:
+                componentInputParameter: pipelinechannel--vertex_run_name
+          taskInfo:
+            name: dataloader-component
+        deploy-and-monitor-component:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-deploy-and-monitor-component
+          dependentTasks:
+          - training-component
+          inputs:
+            parameters:
+              artifact_bucket:
+                runtimeValue:
+                  constant: training-pipeline-output-artifacts
+              location:
+                componentInputParameter: pipelinechannel--location
+              project:
+                componentInputParameter: pipelinechannel--project
+              vertex_run_name:
+                componentInputParameter: pipelinechannel--vertex_run_name
+          taskInfo:
+            name: deploy-and-monitor-component
+        hpt-component:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-hpt-component
+          dependentTasks:
+          - dataloader-component
+          inputs:
+            artifacts:
+              train_loader_input:
+                taskOutputArtifact:
+                  outputArtifactKey: train_loader_output
+                  producerTask: dataloader-component
+              val_loader_input:
+                taskOutputArtifact:
+                  outputArtifactKey: val_loader_output
+                  producerTask: dataloader-component
+            parameters:
+              artifact_bucket:
+                runtimeValue:
+                  constant: training-pipeline-output-artifacts
+              location:
+                componentInputParameter: pipelinechannel--location
+              project:
+                componentInputParameter: pipelinechannel--project
+              vertex_experiment_name:
+                componentInputParameter: pipelinechannel--vertex_experiment_name
+              vertex_run_name:
+                componentInputParameter: pipelinechannel--vertex_run_name
+          taskInfo:
+            name: hpt-component
+        preprocess-component:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-preprocess-component
+          inputs:
+            parameters:
+              artifact_bucket:
+                runtimeValue:
+                  constant: training-pipeline-output-artifacts
+              data_bucket:
+                runtimeValue:
+                  constant: volume-forecasting-data
+              data_path:
+                runtimeValue:
+                  constant: original_merged_dataset.csv
+              location:
+                componentInputParameter: pipelinechannel--location
+              project:
+                componentInputParameter: pipelinechannel--project
+              vertex_experiment_name:
+                componentInputParameter: pipelinechannel--vertex_experiment_name
+              vertex_run_name:
+                componentInputParameter: pipelinechannel--vertex_run_name
+          taskInfo:
+            name: preprocess-component
+        training-component:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-training-component
+          dependentTasks:
+          - dataloader-component
+          - hpt-component
+          inputs:
+            artifacts:
+              best_params_input:
+                taskOutputArtifact:
+                  outputArtifactKey: best_params_output
+                  producerTask: hpt-component
+              train_loader_input:
+                taskOutputArtifact:
+                  outputArtifactKey: train_loader_output
+                  producerTask: dataloader-component
+              training_input:
+                taskOutputArtifact:
+                  outputArtifactKey: training_output
+                  producerTask: dataloader-component
+              val_loader_input:
+                taskOutputArtifact:
+                  outputArtifactKey: val_loader_output
+                  producerTask: dataloader-component
+            parameters:
+              artifact_bucket:
+                runtimeValue:
+                  constant: training-pipeline-output-artifacts
+              location:
+                componentInputParameter: pipelinechannel--location
+              project:
+                componentInputParameter: pipelinechannel--project
+              vertex_experiment_name:
+                componentInputParameter: pipelinechannel--vertex_experiment_name
+              vertex_run_name:
+                componentInputParameter: pipelinechannel--vertex_run_name
+          taskInfo:
+            name: training-component
+    inputDefinitions:
+      parameters:
+        pipelinechannel--location:
+          parameterType: STRING
+        pipelinechannel--project:
+          parameterType: STRING
+        pipelinechannel--vertex_experiment_name:
+          parameterType: STRING
+        pipelinechannel--vertex_run_name:
+          parameterType: STRING
+  comp-hpt-component:
+    executorLabel: exec-hpt-component
+    inputDefinitions:
+      artifacts:
+        train_loader_input:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        val_loader_input:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        artifact_bucket:
+          parameterType: STRING
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          defaultValue: HPT Pipeline
+          isOptional: true
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          parameterType: STRING
+        max_wait_duration:
+          defaultValue: 86400s
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        persistent_resource_id:
+          defaultValue: '{{$.pipeline_persistent_resource_id}}'
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        reserved_ip_ranges:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com
+          isOptional: true
+          parameterType: STRING
+        strategy:
+          defaultValue: STANDARD
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        vertex_experiment_name:
+          parameterType: STRING
+        vertex_run_name:
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue:
+          - container_spec:
+              args:
+              - --executor_input
+              - '{{$.json_escape[1]}}'
+              - --function_to_execute
+              - hpt_component
+              command:
+              - sh
+              - -c
+              - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip\
+                \ || python3 -m ensurepip --user || apt-get install python3-pip\n\
+                fi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet\
+                \ --no-warn-script-location 'kfp==2.13.0' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+                \ python_version<\"3.9\"'  &&  python3 -m pip install --quiet --no-warn-script-location\
+                \ 'pytorch_forecasting' 'torch' 'lightning' 'optuna' 'statsmodels'\
+                \ 'optuna-integration[pytorch_lightning]' 'tensorboard' 'google-cloud-storage'\
+                \ 'google-cloud-aiplatform' && \"$0\" \"$@\"\n"
+              - sh
+              - -ec
+              - 'program_path=$(mktemp -d)
+
+
+                printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+                _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+                '
+              - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
+                \ import *\n\ndef hpt_component(\n    project: str,\n    location:\
+                \ str,\n    artifact_bucket: str,\n    vertex_experiment_name: str,\n\
+                \    vertex_run_name: str,\n    train_loader_input: dsl.Input[dsl.Dataset],\n\
+                \    val_loader_input: dsl.Input[dsl.Dataset],\n    best_params_output:\
+                \ dsl.Output[dsl.Artifact],\n):\n    from steps.hpt_step import hpt_step\n\
+                \n    hpt_step(\n        project = project,\n        location = location,\n\
+                \        artifact_bucket = artifact_bucket,\n        vertex_experiment_name\
+                \ = vertex_experiment_name,\n        vertex_run_name = vertex_run_name,\n\
+                \        train_loader_input = train_loader_input.path,\n        val_loader_input\
+                \ = val_loader_input.path,\n        best_params_output = best_params_output.path,\n\
+                \    )\n\n"
+              env: []
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v1
+            disk_spec:
+              boot_disk_size_gb: 100.0
+              boot_disk_type: pd-ssd
+            machine_spec:
+              machine_type: e2-standard-4
+            replica_count: 1.0
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        best_params_output:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-preprocess-component:
+    executorLabel: exec-preprocess-component
+    inputDefinitions:
+      parameters:
+        artifact_bucket:
+          parameterType: STRING
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        data_bucket:
+          parameterType: STRING
+        data_path:
+          parameterType: STRING
+        display_name:
+          defaultValue: PreProcessing Pipeline
+          isOptional: true
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          parameterType: STRING
+        max_wait_duration:
+          defaultValue: 86400s
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        persistent_resource_id:
+          defaultValue: '{{$.pipeline_persistent_resource_id}}'
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        reserved_ip_ranges:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com
+          isOptional: true
+          parameterType: STRING
+        strategy:
+          defaultValue: STANDARD
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        vertex_experiment_name:
+          parameterType: STRING
+        vertex_run_name:
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue:
+          - container_spec:
+              args:
+              - --executor_input
+              - '{{$.json_escape[1]}}'
+              - --function_to_execute
+              - preprocess_component
+              command:
+              - sh
+              - -c
+              - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip\
+                \ || python3 -m ensurepip --user || apt-get install python3-pip\n\
+                fi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet\
+                \ --no-warn-script-location 'kfp==2.13.0' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+                \ python_version<\"3.9\"'  &&  python3 -m pip install --quiet --no-warn-script-location\
+                \ 'pandas' 'google-cloud-storage' 'numpy' 'google-cloud-aiplatform'\
+                \ && \"$0\" \"$@\"\n"
+              - sh
+              - -ec
+              - 'program_path=$(mktemp -d)
+
+
+                printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+                _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+                '
+              - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
+                \ import *\n\ndef preprocess_component(\n    project: str,\n    location:\
+                \ str,\n    artifact_bucket: str,\n    data_bucket: str,\n    data_path:\
+                \ str,\n    vertex_experiment_name: str,\n    vertex_run_name: str,\n\
+                \    preprocessed_data: dsl.Output[dsl.Dataset],\n):\n    from steps.preprocess_step\
+                \ import preprocess_step\n\n    preprocess_step(\n        project\
+                \ = project,\n        location = location,\n        artifact_bucket\
+                \ = artifact_bucket,\n        data_bucket = data_bucket,\n       \
+                \ data_path = data_path,\n        vertex_experiment_name = vertex_experiment_name,\n\
+                \        vertex_run_name = vertex_run_name,\n        preprocessed_data_path\
+                \ = preprocessed_data.path,\n    )\n\n"
+              env: []
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v1
+            disk_spec:
+              boot_disk_size_gb: 100.0
+              boot_disk_type: pd-ssd
+            machine_spec:
+              machine_type: e2-standard-4
+            replica_count: 1.0
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        preprocessed_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-training-component:
+    executorLabel: exec-training-component
+    inputDefinitions:
+      artifacts:
+        best_params_input:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+        train_loader_input:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        training_input:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        val_loader_input:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        artifact_bucket:
+          parameterType: STRING
+        base_output_directory:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        display_name:
+          defaultValue: Training Pipeline
+          isOptional: true
+          parameterType: STRING
+        enable_web_access:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        encryption_spec_key_name:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        labels:
+          defaultValue: {}
+          isOptional: true
+          parameterType: STRUCT
+        location:
+          parameterType: STRING
+        max_wait_duration:
+          defaultValue: 86400s
+          isOptional: true
+          parameterType: STRING
+        network:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        persistent_resource_id:
+          defaultValue: '{{$.pipeline_persistent_resource_id}}'
+          isOptional: true
+          parameterType: STRING
+        project:
+          parameterType: STRING
+        reserved_ip_ranges:
+          defaultValue: []
+          isOptional: true
+          parameterType: LIST
+        restart_job_on_worker_restart:
+          defaultValue: false
+          isOptional: true
+          parameterType: BOOLEAN
+        service_account:
+          defaultValue: gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com
+          isOptional: true
+          parameterType: STRING
+        strategy:
+          defaultValue: STANDARD
+          isOptional: true
+          parameterType: STRING
+        tensorboard:
+          defaultValue: ''
+          isOptional: true
+          parameterType: STRING
+        timeout:
+          defaultValue: 604800s
+          isOptional: true
+          parameterType: STRING
+        vertex_experiment_name:
+          parameterType: STRING
+        vertex_run_name:
+          parameterType: STRING
+        worker_pool_specs:
+          defaultValue:
+          - container_spec:
+              args:
+              - --executor_input
+              - '{{$.json_escape[1]}}'
+              - --function_to_execute
+              - training_component
+              command:
+              - sh
+              - -c
+              - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip\
+                \ || python3 -m ensurepip --user || apt-get install python3-pip\n\
+                fi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet\
+                \ --no-warn-script-location 'kfp==2.13.0' '--no-deps' 'typing-extensions>=3.7.4,<5;\
+                \ python_version<\"3.9\"'  &&  python3 -m pip install --quiet --no-warn-script-location\
+                \ 'pytorch_forecasting' 'torch' 'lightning' 'tensorboard' 'pytorch_optimizer'\
+                \ 'google-cloud-storage' 'google-cloud-aiplatform' && \"$0\" \"$@\"\
+                \n"
+              - sh
+              - -ec
+              - 'program_path=$(mktemp -d)
+
+
+                printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+                _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+                '
+              - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
+                \ import *\n\ndef training_component(\n    project: str,\n    location:\
+                \ str,\n    artifact_bucket: str,\n    vertex_experiment_name: str,\n\
+                \    vertex_run_name: str,\n    training_input: dsl.Input[dsl.Dataset],\n\
+                \    train_loader_input: dsl.Input[dsl.Dataset],\n    val_loader_input:\
+                \ dsl.Input[dsl.Dataset],\n    best_params_input: dsl.Input[dsl.Artifact],\n\
+                \    pth_model_output: dsl.Output[dsl.Model],\n    ckpt_model_output:\
+                \ dsl.Output[dsl.Model]\n):\n    from steps.training_step import training_step\n\
+                \n    training_step(\n        project = project,\n        location\
+                \ = location,\n        artifact_bucket = artifact_bucket,\n      \
+                \  vertex_experiment_name = vertex_experiment_name,\n        vertex_run_name\
+                \ = vertex_run_name,\n        training_input = training_input.path,\n\
+                \        train_loader_input = train_loader_input.path,\n        val_loader_input\
+                \ = val_loader_input.path,\n        best_params_input = best_params_input.path,\n\
+                \        pth_model_output = pth_model_output.path,\n        ckpt_model_output\
+                \ = ckpt_model_output.path\n    )\n\n"
+              env: []
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v1
+            disk_spec:
+              boot_disk_size_gb: 100.0
+              boot_disk_type: pd-ssd
+            machine_spec:
+              machine_type: e2-standard-4
+            replica_count: 1.0
+          isOptional: true
+          parameterType: LIST
+    outputDefinitions:
+      artifacts:
+        ckpt_model_output:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        pth_model_output:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        gcp_resources:
+          parameterType: STRING
+  comp-vertex-pipelines-notification-email:
+    executorLabel: exec-vertex-pipelines-notification-email
+    inputDefinitions:
+      parameters:
+        pipeline_task_final_status:
+          isOptional: true
+          parameterType: TASK_FINAL_STATUS
+        recipients:
+          description: A list of email addresses to send a notification to.
+          parameterType: LIST
+deploymentSpec:
+  executors:
+    exec-dataloader-component:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"display_name": "{{$.inputs.parameters[''display_name'']}}", "job_spec":
+          {"worker_pool_specs": {{$.inputs.parameters[''worker_pool_specs'']}}, "scheduling":
+          {"timeout": "{{$.inputs.parameters[''timeout'']}}", "restart_job_on_worker_restart":
+          {{$.inputs.parameters[''restart_job_on_worker_restart'']}}, "strategy":
+          "{{$.inputs.parameters[''strategy'']}}", "max_wait_duration": "{{$.inputs.parameters[''max_wait_duration'']}}"},
+          "service_account": "{{$.inputs.parameters[''service_account'']}}", "tensorboard":
+          "{{$.inputs.parameters[''tensorboard'']}}", "enable_web_access": {{$.inputs.parameters[''enable_web_access'']}},
+          "network": "{{$.inputs.parameters[''network'']}}", "reserved_ip_ranges":
+          {{$.inputs.parameters[''reserved_ip_ranges'']}}, "base_output_directory":
+          {"output_uri_prefix": "{{$.inputs.parameters[''base_output_directory'']}}"},
+          "persistent_resource_id": "{{$.inputs.parameters[''persistent_resource_id'']}}"},
+          "labels": {{$.inputs.parameters[''labels'']}}, "encryption_spec": {"kms_key_name":
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"}}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
+    exec-deploy-and-monitor-component:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"display_name": "{{$.inputs.parameters[''display_name'']}}", "job_spec":
+          {"worker_pool_specs": {{$.inputs.parameters[''worker_pool_specs'']}}, "scheduling":
+          {"timeout": "{{$.inputs.parameters[''timeout'']}}", "restart_job_on_worker_restart":
+          {{$.inputs.parameters[''restart_job_on_worker_restart'']}}, "strategy":
+          "{{$.inputs.parameters[''strategy'']}}", "max_wait_duration": "{{$.inputs.parameters[''max_wait_duration'']}}"},
+          "service_account": "{{$.inputs.parameters[''service_account'']}}", "tensorboard":
+          "{{$.inputs.parameters[''tensorboard'']}}", "enable_web_access": {{$.inputs.parameters[''enable_web_access'']}},
+          "network": "{{$.inputs.parameters[''network'']}}", "reserved_ip_ranges":
+          {{$.inputs.parameters[''reserved_ip_ranges'']}}, "base_output_directory":
+          {"output_uri_prefix": "{{$.inputs.parameters[''base_output_directory'']}}"},
+          "persistent_resource_id": "{{$.inputs.parameters[''persistent_resource_id'']}}"},
+          "labels": {{$.inputs.parameters[''labels'']}}, "encryption_spec": {"kms_key_name":
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"}}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
+    exec-hpt-component:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"display_name": "{{$.inputs.parameters[''display_name'']}}", "job_spec":
+          {"worker_pool_specs": {{$.inputs.parameters[''worker_pool_specs'']}}, "scheduling":
+          {"timeout": "{{$.inputs.parameters[''timeout'']}}", "restart_job_on_worker_restart":
+          {{$.inputs.parameters[''restart_job_on_worker_restart'']}}, "strategy":
+          "{{$.inputs.parameters[''strategy'']}}", "max_wait_duration": "{{$.inputs.parameters[''max_wait_duration'']}}"},
+          "service_account": "{{$.inputs.parameters[''service_account'']}}", "tensorboard":
+          "{{$.inputs.parameters[''tensorboard'']}}", "enable_web_access": {{$.inputs.parameters[''enable_web_access'']}},
+          "network": "{{$.inputs.parameters[''network'']}}", "reserved_ip_ranges":
+          {{$.inputs.parameters[''reserved_ip_ranges'']}}, "base_output_directory":
+          {"output_uri_prefix": "{{$.inputs.parameters[''base_output_directory'']}}"},
+          "persistent_resource_id": "{{$.inputs.parameters[''persistent_resource_id'']}}"},
+          "labels": {{$.inputs.parameters[''labels'']}}, "encryption_spec": {"kms_key_name":
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"}}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
+    exec-preprocess-component:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"display_name": "{{$.inputs.parameters[''display_name'']}}", "job_spec":
+          {"worker_pool_specs": {{$.inputs.parameters[''worker_pool_specs'']}}, "scheduling":
+          {"timeout": "{{$.inputs.parameters[''timeout'']}}", "restart_job_on_worker_restart":
+          {{$.inputs.parameters[''restart_job_on_worker_restart'']}}, "strategy":
+          "{{$.inputs.parameters[''strategy'']}}", "max_wait_duration": "{{$.inputs.parameters[''max_wait_duration'']}}"},
+          "service_account": "{{$.inputs.parameters[''service_account'']}}", "tensorboard":
+          "{{$.inputs.parameters[''tensorboard'']}}", "enable_web_access": {{$.inputs.parameters[''enable_web_access'']}},
+          "network": "{{$.inputs.parameters[''network'']}}", "reserved_ip_ranges":
+          {{$.inputs.parameters[''reserved_ip_ranges'']}}, "base_output_directory":
+          {"output_uri_prefix": "{{$.inputs.parameters[''base_output_directory'']}}"},
+          "persistent_resource_id": "{{$.inputs.parameters[''persistent_resource_id'']}}"},
+          "labels": {{$.inputs.parameters[''labels'']}}, "encryption_spec": {"kms_key_name":
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"}}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
+    exec-training-component:
+      container:
+        args:
+        - --type
+        - CustomJob
+        - --payload
+        - '{"display_name": "{{$.inputs.parameters[''display_name'']}}", "job_spec":
+          {"worker_pool_specs": {{$.inputs.parameters[''worker_pool_specs'']}}, "scheduling":
+          {"timeout": "{{$.inputs.parameters[''timeout'']}}", "restart_job_on_worker_restart":
+          {{$.inputs.parameters[''restart_job_on_worker_restart'']}}, "strategy":
+          "{{$.inputs.parameters[''strategy'']}}", "max_wait_duration": "{{$.inputs.parameters[''max_wait_duration'']}}"},
+          "service_account": "{{$.inputs.parameters[''service_account'']}}", "tensorboard":
+          "{{$.inputs.parameters[''tensorboard'']}}", "enable_web_access": {{$.inputs.parameters[''enable_web_access'']}},
+          "network": "{{$.inputs.parameters[''network'']}}", "reserved_ip_ranges":
+          {{$.inputs.parameters[''reserved_ip_ranges'']}}, "base_output_directory":
+          {"output_uri_prefix": "{{$.inputs.parameters[''base_output_directory'']}}"},
+          "persistent_resource_id": "{{$.inputs.parameters[''persistent_resource_id'']}}"},
+          "labels": {{$.inputs.parameters[''labels'']}}, "encryption_spec": {"kms_key_name":
+          "{{$.inputs.parameters[''encryption_spec_key_name'']}}"}}'
+        - --project
+        - '{{$.inputs.parameters[''project'']}}'
+        - --location
+        - '{{$.inputs.parameters[''location'']}}'
+        - --gcp_resources
+        - '{{$.outputs.parameters[''gcp_resources''].output_file}}'
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.custom_job.launcher
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
+    exec-vertex-pipelines-notification-email:
+      container:
+        args:
+        - --type
+        - VertexNotificationEmail
+        - --payload
+        - ''
+        command:
+        - python3
+        - -u
+        - -m
+        - google_cloud_pipeline_components.container.v1.vertex_notification_email.executor
+        image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
+pipelineInfo:
+  description: End to end pipeline for training the Temporal Fusion Transformer model
+  name: timeseries-tft-training-pipeline
+root:
+  dag:
+    tasks:
+      exit-handler-1:
+        componentRef:
+          name: comp-exit-handler-1
+        inputs:
+          parameters:
+            pipelinechannel--location:
+              componentInputParameter: location
+            pipelinechannel--project:
+              componentInputParameter: project
+            pipelinechannel--vertex_experiment_name:
+              componentInputParameter: vertex_experiment_name
+            pipelinechannel--vertex_run_name:
+              componentInputParameter: vertex_run_name
+        taskInfo:
+          name: exit-handler-1
+      vertex-pipelines-notification-email:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-vertex-pipelines-notification-email
+        dependentTasks:
+        - exit-handler-1
+        inputs:
+          parameters:
+            pipeline_task_final_status:
+              taskFinalStatus:
+                producerTask: exit-handler-1
+            recipients:
+              runtimeValue:
+                constant:
+                - ritheeshgururi187@gmail.com
+        taskInfo:
+          name: vertex-pipelines-notification-email
+        triggerPolicy:
+          strategy: ALL_UPSTREAM_TASKS_COMPLETED
+  inputDefinitions:
+    parameters:
+      location:
+        parameterType: STRING
+      project:
+        parameterType: STRING
+      vertex_experiment_name:
+        parameterType: STRING
+      vertex_run_name:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.13.0

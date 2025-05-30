@@ -1,6 +1,6 @@
-docker build -t us-central1-docker.pkg.dev/ritheesh/base-images/my-base-image:v55 .
-docker push us-central1-docker.pkg.dev/ritheesh/base-images/my-base-image:v55
-docker run -it us-central1-docker.pkg.dev/ritheesh/base-images/my-base-image:v55 /bin/bash
+docker build -t asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v2 .
+docker push asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v2
+docker run -it asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v2 /bin/bash
 
 
 

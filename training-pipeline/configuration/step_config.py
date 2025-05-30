@@ -52,9 +52,9 @@ class TrainingConfig:
     tft_reduce_on_plateau_patience = 4
     
 class DeployConfig:
-    serving_container_image_uri = "us-central1-docker.pkg.dev/ritheesh/tft/pytorch-tft-cpr-trial"
+    ### serving_container_image_uri = "us-central1-docker.pkg.dev/ritheesh/tft/pytorch-tft-cpr-trial"
     MODEL_DISPLAY_NAME = "pytorch-forecasting-tft-trial"
-    SERVING_CONTAINER_MACHINE_TYPE = "n2-standard-32"
+    SERVING_CONTAINER_MACHINE_TYPE = "n2-standard-2"
     
 class MonitorConfig:
     DEFAULT_THRESHOLD_VALUE = 0.001
