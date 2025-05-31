@@ -1,0 +1,12 @@
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+RUN python --version
+RUN pip --version
+
+RUN pip install --upgrade pip
+
+COPY src_dir_handler_sdk/cpu_requirements.txt .
+
+RUN pip install --no-cache-dir -r cpu_requirements.txt
