@@ -52,7 +52,7 @@ class TrainingConfig:
     tft_reduce_on_plateau_patience = 4
     
 class DeployConfig:
-    PARENT_MODEL = ""
+    PARENT_MODEL = "9077488834081456128"
     SERVING_CONTAINER_IMAGE_URI = "asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/tft-cpr-serving-container/serving-container-cpr"
     MODEL_DISPLAY_NAME = "tft-cpr-model"
     SERVING_CONTAINER_MACHINE_TYPE = "n2-standard-2"

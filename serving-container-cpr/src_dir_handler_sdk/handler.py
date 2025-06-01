@@ -1,60 +1,53 @@
-import csv
-from io import StringIO
 import json
-
+import logging
 from fastapi import Response, Request
 import pandas as pd
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 
+logging.basicConfig(level = logging.INFO)
+logger = logging.getLogger(__name__)
 
 class CprHandler(PredictionHandler):
-    
     async def handle(self, request: Request):
         try:
             request_body = await request.body()
-            print("Data Received")
+            logger.info("Request received")
             
             request_data = json.loads(request_body.decode("utf-8"))
-            print(type(request_data["instances"][0]))
+            logger.info(type(request_data["instances"][0]))
             try:
                 if request_data['request_type'] == "Online":
                     is_online_prediction = True
-                    data_list = json.loads(request_data["instances"][0])
                 else:
                     is_online_prediction = False
-                    data_list = request_data["instances"][0]
             except:
                 is_online_prediction = False
-                data_list = request_data["instances"][0]
             
-            print("Online Prediction Detected" if is_online_prediction else "Batch Prediction Detected")
+            logger.info("Online Prediction Detected" if is_online_prediction else "Batch Prediction Detected")
                 
             prediction_instances = pd.DataFrame(request_data["instances"][0])
             print(prediction_instances.head())
-            print("DataFrame Created")
-
+            logger.info("Prediction dataFrame created")
 
             df = self._predictor.preprocess(data = prediction_instances)
-            print("Preprocess Done")
+            logger.info("Exited preprocessing")
             
             self._predictor.predict()
-            print("Prediction Done")
+            logger.info("Exited prediction")
             
             prediction_results = self._predictor.post_process(data = df)
-            print("Postprocess Done")
+            logger.info("Exited prediction")
             
             json_res = json.dumps(prediction_results)
-
             
             if is_online_prediction:
-                return Response(content=json_res, media_type="application/json")
+                return Response(content = json_res, media_type = "application/json")
             else:
                 json_output = json.dumps({"predictions":[prediction_results]})
-                return Response(content=json_output)
-
-        
+                return Response(content = json_output)
         except Exception as e:
             message = "Exception : " + str(e)
-            return Response(content = json.dumps({"code" : 500,
-                                                 "Message" : message}))
-        
+            return Response(content = json.dumps({
+                "code" : 500,
+                "Message" : message
+            }))

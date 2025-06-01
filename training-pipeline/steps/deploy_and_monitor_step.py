@@ -21,6 +21,8 @@ def deploy_and_monitor_step(
         display_name = DeployConfig.MODEL_DISPLAY_NAME,
         artifact_uri = f"gs://{artifact_bucket}/{vertex_run_name}/ckpt_model_artifacts",
         serving_container_image_uri = DeployConfig.SERVING_CONTAINER_IMAGE_URI,
+        serving_container_predict_route = '/predict',
+        serving_container_health_route = '/health'
     )
     logger.info("Model uploaded to artifact registry")
 
