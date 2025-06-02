@@ -1,7 +1,4 @@
 from kfp import dsl
-from google.cloud import aiplatform
-import logging
-from datetime import datetime
 
 from google_cloud_pipeline_components.v1.custom_job import create_custom_training_job_from_component
 from google_cloud_pipeline_components.v1.vertex_notification_email import VertexNotificationEmailOp
@@ -13,8 +10,6 @@ from components.training_component import training_component as TrainingOp
 from components.deploy_and_monitor_component import deploy_and_monitor_component as DeployAndMonitorOp
 
 import configuration.pipeline_config as pipeline_config
-import configuration.step_config as step_config
-
 
 preprocessOP = create_custom_training_job_from_component(
     PreprocessOp,
@@ -51,10 +46,6 @@ deployandmonitorOP = create_custom_training_job_from_component(
     service_account = pipeline_config.ServiceAccount.SERVICE_ACCOUNT
 )
 
-
-
-
-
 @dsl.pipeline(
     name = pipeline_config.Root.DISPLAY_NAME,
     description = pipeline_config.Root.DESCRIPTION
@@ -87,7 +78,7 @@ def training_pipeline(
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
             vertex_experiment_name = vertex_experiment_name,
             vertex_run_name = vertex_run_name,
-            preprocessed_data_input=preprocess_task.outputs['preprocessed_data'],
+            preprocessed_data_input = preprocess_task.outputs['preprocessed_data'],
         )
 
         hpt_task = hptOP(

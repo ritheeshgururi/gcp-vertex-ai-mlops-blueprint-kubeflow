@@ -42,5 +42,5 @@ def batch_prediction_job():
         # model_monitoring_alert_config = alerting_config,
     )
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     batch_prediction_job()

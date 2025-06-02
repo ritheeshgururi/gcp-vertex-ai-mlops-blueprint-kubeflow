@@ -3,7 +3,7 @@ stages:
 
 variables:
   GCP_PROJECT_ID: gcp-vertexai-mlops-blueprint
-  GCP_REGION: us-central1
+  GCP_REGION: asia-south1
   IMAGE_NAME: $GCP_REGION-docker.pkg.dev/$GCP_PROJECT_ID/mlops-repo/prediction-base-image
   DEPLOY_ONLY: false
 

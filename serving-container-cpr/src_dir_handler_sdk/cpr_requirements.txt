@@ -1,9 +1,9 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-numpy
 pandas
 torch~=2.1.0
 pytorch-forecasting
+numpy
 fastapi
 google-cloud-storage
 google-cloud-aiplatform==1.76.0

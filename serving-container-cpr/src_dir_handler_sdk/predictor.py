@@ -1,21 +1,22 @@
-import logging
+import torch
 import numpy as np
 import pandas as pd
+from pytorch_forecasting.data import GroupNormalizer
 from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer
+
 from google.cloud.aiplatform.utils import prediction_utils
 from abc import ABC
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 class CprPredictor(ABC):
+    def __init__(self):
+        return
+    
     def load(self, artifacts_uri: str):
         prediction_utils.download_model_artifacts(artifacts_uri)
         self._best_tft = TemporalFusionTransformer.load_from_checkpoint('tft_model.ckpt')
     
     def preprocess(self, data:pd.DataFrame):
         try:
-            logger.info('Prediction data loaded')
             special_days = [
                 'easter_day',
                 'good_friday',
@@ -31,26 +32,27 @@ class CprPredictor(ABC):
                 'music_fest'
             ]
 
-            logger.info('Preprocessing started')
+            print('Data received and read here in preprocess')
             data['date'] = pd.to_datetime(data['date'])
 
             #add time index
-            logger.info('Adding time index')
+            print('convert date to datetime')
             data['time_idx'] = data['date'].dt.year * 12 + data['date'].dt.month
             data['time_idx'] -= data['time_idx'].min()
 
             #add features
-            logger.info('Adding features')
+            print('created time index')
             data['month'] = data['date'].dt.month.astype(str).astype('category')
             data['log_volume'] = np.log(data.volume + 1e-8)
             data['avg_volume_by_sku'] = data.groupby(['time_idx', 'sku'], observed=True).volume.transform('mean')
             data['avg_volume_by_agency'] = data.groupby(['time_idx', 'agency'], observed=True).volume.transform('mean')
+            print('add additioinal features')
 
             data[special_days] = data[special_days].apply(lambda x: x.map({0: '-', 1: x.name})).astype('category')
             max_encoder_length = 24
-            logger.info(data.info())
+            print('convert special days to category')
+            print(data.info())
 
-            logger.info('Starting TimeSeriesDataSet object creation')
             batch_dataset = TimeSeriesDataSet(
                 data,
                 time_idx = 'time_idx',
@@ -82,37 +84,34 @@ class CprPredictor(ABC):
                 add_target_scales = True,
                 add_encoder_length = True
             )
-            logger.info('TimeSeriesDataSet object creation completed')
+            print('create time series dataset')
 
-            logger.info('Starting dataloader creation')
             self._batch_dataloader = batch_dataset.to_dataloader(train = False, batch_size = 128, num_workers = 3)
-            logger.info('Dataloader creation complete')
+            print('create dataloader')
         except Exception as e:
-            logger.info('Error during preprocessing: ', e)
+            print('PreProcess Exception: ', e)
         return data
     
     def predict(self):
         try:
-            logger.info('Starting prediction')
             self._raw_predictions = self._best_tft.predict(self._batch_dataloader, mode = 'raw', return_index = True, return_x = True)
-            logger.info('Prediction completed')
         except Exception as e:
-            logger.info('Error during prediction: ', e)
+            print('Predict Exception: ', e)
         
     def post_process(self, data:pd.DataFrame):
         try:
             predictions_df = data.copy()
             predictions_df['predicted_volume'] = np.nan
             predictions_df['date'] = predictions_df['date'].astype(str)
-            logger.info('Converted date to string')
+            print('convert date to string')
 
             median_predictions = self._raw_predictions.output.prediction.cpu().numpy()[:,:,4] 
-            logger.info('Obtained median predictions')
+            print('get median predictions')
 
             for i, row in self._raw_predictions.index.iterrows():
                 predictions_df.loc[(predictions_df['agency'] == row['agency']) & (predictions_df['sku'] == row['sku']), 'predicted_volume'] = median_predictions[i][0]
-            logger.info('Final dataframe with predictions created')
+            print('create final df with predictions')
         except Exception as e:
-            logger.info('Error during Postprocessing: ', e)
+            print('PostProcess Exception: ', e)
         
-        return predictions_df.to_dict(orient = 'records')
+        return predictions_df.to_dict(orient='records')
