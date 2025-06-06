@@ -1,25 +1,17 @@
 # PIPELINE DEFINITION
-# Name: endoint-inference-pipeline
-# Description: End to end pipeline for endpoint prediction
-# Inputs:
-#    data_path: str
-#    endpoint_id: str
-#    gcs_bucket: str
-#    location: str
-#    project: str
+# Name: batch-inference-pipeline
+# Description: End to end pipeline for batch inference
 components:
-  comp-endpoint-prediction-component:
-    executorLabel: exec-endpoint-prediction-component
+  comp-batch-inference-component:
+    executorLabel: exec-batch-inference-component
     inputDefinitions:
       parameters:
         base_output_directory:
           defaultValue: ''
           isOptional: true
           parameterType: STRING
-        data_path:
-          parameterType: STRING
         display_name:
-          defaultValue: endoint-inference-pipeline
+          defaultValue: batch-inference-pipeline
           isOptional: true
           parameterType: STRING
         enable_web_access:
@@ -30,15 +22,13 @@ components:
           defaultValue: ''
           isOptional: true
           parameterType: STRING
-        endpoint_id:
-          parameterType: STRING
-        gcs_bucket:
-          parameterType: STRING
         labels:
           defaultValue: {}
           isOptional: true
           parameterType: STRUCT
         location:
+          defaultValue: '{{$.pipeline_google_cloud_location}}'
+          isOptional: true
           parameterType: STRING
         max_wait_duration:
           defaultValue: 86400s
@@ -53,6 +43,8 @@ components:
           isOptional: true
           parameterType: STRING
         project:
+          defaultValue: '{{$.pipeline_google_cloud_project_id}}'
+          isOptional: true
           parameterType: STRING
         reserved_ip_ranges:
           defaultValue: []
@@ -85,7 +77,7 @@ components:
               - --executor_input
               - '{{$.json_escape[1]}}'
               - --function_to_execute
-              - endpoint_prediction_component
+              - batch_inference_component
               command:
               - sh
               - -c
@@ -107,16 +99,10 @@ components:
 
                 '
               - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
-                \ import *\n\ndef endpoint_prediction_component(\n    project: str,\n\
-                \    location: str,\n    gcs_bucket: str,\n    data_path: str,\n \
-                \   endpoint_id: str,\n    predictions_output: dsl.Output[dsl.Dataset]\n\
-                ):\n    from steps.endpoint_prediction_step import endpoint_prediction_step\n\
-                \n    endpoint_prediction_step(\n        project = project,\n    \
-                \    location = location,\n        gcs_bucket = gcs_bucket,\n    \
-                \    data_path = data_path,\n        endpoint_id = endpoint_id,\n\
-                \        predictions_output = predictions_output.path\n    )\n\n"
+                \ import *\n\ndef batch_inference_component():\n    from steps.batch_inference_step\
+                \ import batch_inference_step\n\n    batch_inference_step()\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/inference-image:v4
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/inference-image:v6
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
@@ -126,48 +112,19 @@ components:
           isOptional: true
           parameterType: LIST
     outputDefinitions:
-      artifacts:
-        predictions_output:
-          artifactType:
-            schemaTitle: system.Dataset
-            schemaVersion: 0.0.1
       parameters:
         gcp_resources:
           parameterType: STRING
   comp-exit-handler-1:
     dag:
       tasks:
-        endpoint-prediction-component:
+        batch-inference-component:
           cachingOptions:
             enableCache: true
           componentRef:
-            name: comp-endpoint-prediction-component
-          inputs:
-            parameters:
-              data_path:
-                componentInputParameter: pipelinechannel--data_path
-              endpoint_id:
-                componentInputParameter: pipelinechannel--endpoint_id
-              gcs_bucket:
-                componentInputParameter: pipelinechannel--gcs_bucket
-              location:
-                componentInputParameter: pipelinechannel--location
-              project:
-                componentInputParameter: pipelinechannel--project
+            name: comp-batch-inference-component
           taskInfo:
-            name: endpoint-prediction-component
-    inputDefinitions:
-      parameters:
-        pipelinechannel--data_path:
-          parameterType: STRING
-        pipelinechannel--endpoint_id:
-          parameterType: STRING
-        pipelinechannel--gcs_bucket:
-          parameterType: STRING
-        pipelinechannel--location:
-          parameterType: STRING
-        pipelinechannel--project:
-          parameterType: STRING
+            name: batch-inference-component
   comp-vertex-pipelines-notification-email:
     executorLabel: exec-vertex-pipelines-notification-email
     inputDefinitions:
@@ -180,7 +137,7 @@ components:
           parameterType: LIST
 deploymentSpec:
   executors:
-    exec-endpoint-prediction-component:
+    exec-batch-inference-component:
       container:
         args:
         - --type
@@ -225,26 +182,14 @@ deploymentSpec:
         - google_cloud_pipeline_components.container.v1.vertex_notification_email.executor
         image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
 pipelineInfo:
-  description: End to end pipeline for endpoint prediction
-  name: endoint-inference-pipeline
+  description: End to end pipeline for batch inference
+  name: batch-inference-pipeline
 root:
   dag:
     tasks:
       exit-handler-1:
         componentRef:
           name: comp-exit-handler-1
-        inputs:
-          parameters:
-            pipelinechannel--data_path:
-              componentInputParameter: data_path
-            pipelinechannel--endpoint_id:
-              componentInputParameter: endpoint_id
-            pipelinechannel--gcs_bucket:
-              componentInputParameter: gcs_bucket
-            pipelinechannel--location:
-              componentInputParameter: location
-            pipelinechannel--project:
-              componentInputParameter: project
         taskInfo:
           name: exit-handler-1
       vertex-pipelines-notification-email:
@@ -267,17 +212,5 @@ root:
           name: vertex-pipelines-notification-email
         triggerPolicy:
           strategy: ALL_UPSTREAM_TASKS_COMPLETED
-  inputDefinitions:
-    parameters:
-      data_path:
-        parameterType: STRING
-      endpoint_id:
-        parameterType: STRING
-      gcs_bucket:
-        parameterType: STRING
-      location:
-        parameterType: STRING
-      project:
-        parameterType: STRING
 schemaVersion: 2.1.0
 sdkVersion: kfp-2.13.0

@@ -18,20 +18,8 @@ batchinferenceOP = create_custom_training_job_from_component(
     name = pipeline_config.Root.DISPLAY_NAME,
     description = pipeline_config.Root.DESCRIPTION
 )
-def batch_inference_pipeline(
-    project: str,
-    location: str,
-    gcs_bucket: str,
-    data_path: str,
-    endpoint_id: str
-):
+def batch_inference_pipeline():
     notify_email_task = VertexNotificationEmailOp(recipients = pipeline_config.NotificationEmail.NOTIFICATION_EMAIL_LIST)
     
     with dsl.ExitHandler(notify_email_task):
-        batch_inference_task = batchinferenceOP(
-            project = project,
-            location=location,
-            gcs_bucket=gcs_bucket,
-            data_path=data_path,
-            endpoint_id=endpoint_id
-        )
+        batch_inference_task = batchinferenceOP()
