@@ -1,7 +1,4 @@
-import csv
-from io import StringIO
 import json
-
 from fastapi import Response, Request
 import pandas as pd
 from google.cloud.aiplatform.prediction.handler import PredictionHandler

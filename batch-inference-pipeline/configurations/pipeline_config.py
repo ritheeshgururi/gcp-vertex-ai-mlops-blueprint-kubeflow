@@ -1,10 +1,10 @@
 from utils.utils import get_base_image_path
 
 class Root:
-    DISPLAY_NAME = 'endoint-inference-pipeline'
+    DISPLAY_NAME = 'batch-inference-pipeline'
     PIPELINE_ROOT = f'gs://vertex-pipeline-root-inference'
-    PIPELINE_PACKAGE_YAML_PATH = 'compiled_pipeline_yaml/batch_prediction_pipeline.yaml'
-    DESCRIPTION = 'End to end pipeline for endpoint prediction'
+    PIPELINE_PACKAGE_YAML_PATH = 'compiled_pipeline_yaml/batch_inference_pipeline.yaml'
+    DESCRIPTION = 'End to end pipeline for batch inference'
     SERVICE_ACCOUNT = 'gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com'
 
 class ProjectConfig:
@@ -12,7 +12,7 @@ class ProjectConfig:
     LOCATION = 'asia-south1'
     BUCKET_NAME = 'online-prediction-volume-forecasting'
     DATA_PATH = 'input/endpoint_prediction_dataset.csv'
-    ENDPOINT_ID = '1868373720800690176'
+    ENDPOINT_ID = '427784789995552768'
 
 class Dependencies:
     BATCH_PACKAGES = [

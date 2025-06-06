@@ -116,7 +116,7 @@ components:
                 \    data_path = data_path,\n        endpoint_id = endpoint_id,\n\
                 \        predictions_output = predictions_output.path\n    )\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/inference-image:v3
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/inference-image:v4
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd

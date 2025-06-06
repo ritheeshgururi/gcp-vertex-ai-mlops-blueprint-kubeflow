@@ -43,4 +43,4 @@ with aiplatform.start_run(run_name) as run:
 
     print(f'Pipeline submitted for run: {run_name}')
 
-print(f'Run '{run_name}' completed.')
+print(f'Run "{run_name}" completed.')
