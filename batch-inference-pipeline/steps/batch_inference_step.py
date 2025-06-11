@@ -1,7 +1,6 @@
 import logging
 from google.cloud import aiplatform
 from configurations.step_config import BatchPredictionJobConfig
-from configurations.step_config import BatchPredictionMonitoringConfig
 
 def batch_inference_step():
     logger = logging.getLogger(__name__)

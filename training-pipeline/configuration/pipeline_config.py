@@ -23,7 +23,8 @@ class Dependencies:
         'pandas',
         'google-cloud-storage',
         'numpy',
-        'google-cloud-aiplatform'
+        'google-cloud-aiplatform',
+        'gcsfs'
     ]
     DATALOADER_PACKAGES = [
         'pandas',

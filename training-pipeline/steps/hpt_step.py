@@ -35,7 +35,7 @@ def hpt_step(
     
     ###logging parameters to the vertex experiment run
     logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
-    run = step_utils.get_experiment_run(
+    run = step_utils.get_vertex_experiment_run(
         project,
         location,
         vertex_experiment_name,
@@ -89,5 +89,9 @@ def hpt_step(
     #saving to GCS
     best_params_gcs_path = f'{vertex_run_name}/hpt_artifacts/best_params.pkl'
     step_utils.upload_file_to_gcs(project, artifact_bucket, best_params_output, best_params_gcs_path)
+
+    run.log_params({
+        'HPT_OUTPUT_gcs_uri': f'gs://{artifact_bucket}/{best_params_gcs_path}'
+    })
     
     logger.info(f'Best parameters saved to GCS: gs://{artifact_bucket}/{best_params_gcs_path}')

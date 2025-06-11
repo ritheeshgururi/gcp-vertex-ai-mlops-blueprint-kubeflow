@@ -3,18 +3,26 @@ import logging
 from google.cloud import aiplatform
 
 from configuration.step_config import DeployConfig
+from utils import step_utils
 
 def deploy_step(
     project,
     location,
     artifact_bucket,
-    vertex_run_name,
+    vertex_experiment_name,
+    vertex_run_name
 ):
     """Uploads the model to Model Registry, deploys the same to an endpoint, and creates model monitoring job"""
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)    
     
-    aiplatform.init(project = project, location = location)
+    #getting experiment run name and initializing Vertex AI
+    run = step_utils.get_vertex_experiment_run(
+        project,
+        location,
+        vertex_experiment_name,
+        vertex_run_name
+    )
 
     logger.info('Uploading model resource to Model Registry')
     model = aiplatform.Model.upload(
@@ -26,6 +34,10 @@ def deploy_step(
         serving_container_health_route = '/health'
     )
     logger.info('Model uploaded to Model Registry')
+
+    run.log_params({
+        'DEPLOY_OUTPUT_model_resource_name': model.resource_name
+    })
 
     ###start of model deployment to endpoint
     if DeployConfig.deploy_to_existing_endpoint == True:
@@ -46,9 +58,13 @@ def deploy_step(
         logger.info('Endpoint created')
 
     logger.info('Start of deploying model to endpoint')
-    endpoint = model.deploy(
+    deployed_model_endpoint = model.deploy(
         endpoint = endpoint,
         machine_type = DeployConfig.SERVING_CONTAINER_MACHINE_TYPE
     )
     logger.info('Model deployed to endpoint')
+
+    run.log_params({
+        'DEPLOY_OUTPUT_deployed_model_endpoint_resource_name': deployed_model_endpoint.resource_name
+    })
     ###end of model endpoint deployment

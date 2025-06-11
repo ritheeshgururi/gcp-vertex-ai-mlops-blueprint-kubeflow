@@ -19,7 +19,7 @@ aiplatform.init(
     experiment = pipeline_config.ExperimentConfig.EXPERIMENT_NAME
 )
 
-run_name = f'run-{(datetime.datetime.utcnow() + datetime.timedelta(hours=5, minutes=30)).strftime('%d%b%Y-%H-%M-%S').lower()}'
+run_name = f'run-{(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=5, minutes=30)).strftime('%d%b%Y-%H-%M-%S').lower()}'
 
 #associating the pipeline run with the unique experiment run name generated above
 with aiplatform.start_run(run_name) as run:

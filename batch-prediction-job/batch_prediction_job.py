@@ -1,5 +1,5 @@
 import google.cloud.aiplatform as aiplatform
-from config import BatchPredictionJobConfig, BatchPredictionMonitoringConfig
+from config import BatchPredictionJobConfig
 
 def batch_prediction_job():
     aiplatform.init(

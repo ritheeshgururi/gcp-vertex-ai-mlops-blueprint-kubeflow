@@ -116,5 +116,9 @@ def dataloader_step(
     #saving val dataloader
     val_loader_gcs_path = f'{vertex_run_name}/dataloader_artifacts/val_dataloader.pkl' 
     step_utils.upload_file_to_gcs(project, artifact_bucket, val_loader_output, val_loader_gcs_path)
+
+    run.log_parms({
+        'DATALOADER_OUTPUT_artifacts_directory_uri': f'gs://{artifact_bucket}/{vertex_run_name}/dataloader_artifacts/'
+    })
     
     logger.info(f'Dataloader artifacts created and saved to GCS: gs://{artifact_bucket}/{vertex_run_name}/dataloader_artifacts/')

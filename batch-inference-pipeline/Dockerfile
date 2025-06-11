@@ -6,6 +6,6 @@ COPY ./steps /steps
 
 COPY ./utils /utils
 
-COPY requirements.txt .
+COPY base_image_requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r base_image_requirements.txt

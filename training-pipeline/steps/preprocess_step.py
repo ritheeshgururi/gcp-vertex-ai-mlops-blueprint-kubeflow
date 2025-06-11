@@ -43,11 +43,11 @@ def preprocess_step(
     logger.info('Starting preprocessing')
     
     #download and process data
-    logger.info('Fetching data from GCS')
-    local_path = '/tmp/raw_data.csv'
-    step_utils.download_file_from_gcs(project, data_bucket, data_path, local_path)
+    logger.info('Streaming data from GCS')
+    # local_path = '/tmp/raw_data.csv'
+    # step_utils.download_file_from_gcs(project, data_bucket, data_path, local_path)
     
-    data = pd.read_csv(local_path)
+    data = pd.read_csv(f'gs://{data_bucket}/{data_path}')
     
     data['date'] = pd.to_datetime(data['date'])
     
@@ -71,4 +71,7 @@ def preprocess_step(
     preprocessed_gcs_path = f'{vertex_run_name}/preprocessing_artifacts/preprocessed_data.pkl'   
     step_utils.upload_file_to_gcs(project, artifact_bucket, preprocessed_data_path, preprocessed_gcs_path)
     
+    run.log_params({
+        'PREPROCESS_OUTPUT_gcs_uri': f'gs://{artifact_bucket}/{preprocessed_gcs_path}'
+    })
     logger.info(f'Preprocessing completed and saved to GCS: gs://{artifact_bucket}/{preprocessed_gcs_path}')

@@ -43,7 +43,7 @@ def training_step(
     
     ###logging parameters to the vertex experiment run
     logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
-    run = step_utils.get_experiment_run(
+    run = step_utils.get_vertex_experiment_run(
         project,
         location,
         vertex_experiment_name,
@@ -136,7 +136,6 @@ def training_step(
     step_utils.upload_file_to_gcs(project, artifact_bucket, pth_model_output, model_pth_path)
     
     # Upload the model ckpt file to GCS
-    # local_path_ckpt = '/tmp/tft_model.ckpt'
     model_ckpt_path = f'{vertex_run_name}/ckpt_model_artifacts/tft_model.ckpt'
     step_utils.upload_file_to_gcs(project, artifact_bucket, ckpt_model_output, model_ckpt_path)
     ##end of model training logic
