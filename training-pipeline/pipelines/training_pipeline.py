@@ -107,6 +107,7 @@ def training_pipeline(
             project = project,
             location = location,
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
+            vertex_experiment_name = vertex_experiment_name,
             vertex_run_name = vertex_run_name,
         )
         

@@ -9,6 +9,7 @@ def deploy_component(
     project: str,
     location: str,
     artifact_bucket: str,
+    vertex_experiment_name:str,
     vertex_run_name: str
 
 ):
@@ -18,5 +19,6 @@ def deploy_component(
         project = project,
         location = location,
         artifact_bucket = artifact_bucket,
+        vertex_experiment_name = vertex_experiment_name,
         vertex_run_name = vertex_run_name
     )

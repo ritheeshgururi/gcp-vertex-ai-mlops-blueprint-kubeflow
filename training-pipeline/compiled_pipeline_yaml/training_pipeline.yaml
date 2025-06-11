@@ -125,7 +125,7 @@ components:
                 \ = train_loader_output.path,\n        val_loader_output = val_loader_output.path,\n\
                 \    )\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v17
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v18
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
@@ -217,6 +217,8 @@ components:
           defaultValue: 604800s
           isOptional: true
           parameterType: STRING
+        vertex_experiment_name:
+          parameterType: STRING
         vertex_run_name:
           parameterType: STRING
         worker_pool_specs:
@@ -249,13 +251,14 @@ components:
                 '
               - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing\
                 \ import *\n\ndef deploy_component(\n    project: str,\n    location:\
-                \ str,\n    artifact_bucket: str,\n    vertex_run_name: str\n\n):\n\
-                \    from steps.deploy_step import deploy_step\n\n    deploy_step(\n\
-                \        project = project,\n        location = location,\n      \
-                \  artifact_bucket = artifact_bucket,\n        vertex_run_name = vertex_run_name\n\
-                \    )\n\n"
+                \ str,\n    artifact_bucket: str,\n    vertex_experiment_name:str,\n\
+                \    vertex_run_name: str\n\n):\n    from steps.deploy_step import\
+                \ deploy_step\n\n    deploy_step(\n        project = project,\n  \
+                \      location = location,\n        artifact_bucket = artifact_bucket,\n\
+                \        vertex_experiment_name = vertex_experiment_name,\n      \
+                \  vertex_run_name = vertex_run_name\n    )\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v17
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v18
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
@@ -314,6 +317,8 @@ components:
                 componentInputParameter: pipelinechannel--location
               project:
                 componentInputParameter: pipelinechannel--project
+              vertex_experiment_name:
+                componentInputParameter: pipelinechannel--vertex_experiment_name
               vertex_run_name:
                 componentInputParameter: pipelinechannel--vertex_run_name
           taskInfo:
@@ -546,7 +551,7 @@ components:
                 \ = val_loader_input.path,\n        best_params_output = best_params_output.path,\n\
                 \    )\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v17
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v18
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
@@ -678,7 +683,7 @@ components:
                 \        vertex_run_name = vertex_run_name,\n        preprocessed_data_path\
                 \ = preprocessed_data.path,\n    )\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v17
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v18
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
@@ -829,7 +834,7 @@ components:
                 \        pth_model_output = pth_model_output.path,\n        ckpt_model_output\
                 \ = ckpt_model_output.path\n    )\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v17
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v18
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
