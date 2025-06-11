@@ -27,17 +27,12 @@ def preprocess_step(
     volume_transform_type = PreprocessConfig.volume_transform_type
     
     ###logging parameters to the vertex experiment run
-    logger.info('Initializing Vertex AI with experiment name')
-    aiplatform.init(
-        project = project,
-        location = location,
-        experiment = vertex_experiment_name
-    )
-
-    logger.info('Instantiating experiment run')
-    run = aiplatform.ExperimentRun(
-        run_name = vertex_run_name,
-        experiment = vertex_experiment_name
+    logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
+    run = step_utils.get_experiment_run(
+        project,
+        location,
+        vertex_experiment_name,
+        vertex_run_name
     )
 
     logger.info('Logging parameters to the experiment run')

@@ -30,8 +30,15 @@ def hpt_step(
     use_learning_rate_finder = HPTConfig.use_learning_rate_finder
     
     ###logging parameters to the vertex experiment run
-    aiplatform.init(project = project, location = location, experiment = vertex_experiment_name)
-    run = aiplatform.ExperimentRun(run_name = vertex_run_name, experiment = vertex_experiment_name)
+    logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
+    run = step_utils.get_experiment_run(
+        project,
+        location,
+        vertex_experiment_name,
+        vertex_run_name
+    )
+
+    logger.info('Logging parameters to the experiment run')
     run.log_params({
         'HPT_CONFIG_n_trials': n_trials,
         'HPT_CONFIG_max_epochs': max_epochs,

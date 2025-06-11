@@ -39,8 +39,15 @@ def training_step(
     tft_reduce_on_plateau_patience = TrainingConfig.tft_reduce_on_plateau_patience
     
     ###logging parameters to the vertex experiment run
-    aiplatform.init(project = project, location = location, experiment = vertex_experiment_name)
-    run = aiplatform.ExperimentRun(run_name = vertex_run_name, experiment = vertex_experiment_name)
+    logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
+    run = step_utils.get_experiment_run(
+        project,
+        location,
+        vertex_experiment_name,
+        vertex_run_name
+    )
+
+    logger.info('Logging parameters to the experiment run')
     run.log_params({
         'TRAINING_CONFIG_max_epochs': max_epochs,
         'TRAINING_CONFIG_early_stopping_monitor': early_stopping_monitor,

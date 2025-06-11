@@ -1,4 +1,4 @@
-from google.cloud import storage
+from google.cloud import storage, aiplatform
 import pickle
 
 def download_file_from_gcs(project, gcs_bucket, gcs_path, local_path):
@@ -31,3 +31,18 @@ def load_data_from_component_input_in_pickle(component_input):
 def save_data_to_component_output_in_pickle(source_data, component_output):
     with open(component_output, 'wb') as f:
         pickle.dump(source_data, f)
+        
+def get_experiment_run(project, location, experiment_name, run_name):
+    """Initializes Vertex AI and returns an experiment run object"""
+
+    aiplatform.init(
+        project = project,
+        location = location,
+        experiment = experiment_name
+    )
+
+    run = aiplatform.ExperimentRun(
+        run_name = run_name,
+        experiment = experiment_name
+    )
+    return run

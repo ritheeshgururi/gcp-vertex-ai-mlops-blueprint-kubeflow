@@ -34,15 +34,15 @@ def dataloader_step(
     train_val_batch_size_ratio = DataloaderConfig.train_val_batch_size_ratio
     
     ###logging parameters to the vertex experiment run
-    aiplatform.init(
-        project = project,
-        location = location,
-        experiment = vertex_experiment_name
+    logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
+    run = step_utils.get_experiment_run(
+        project,
+        location,
+        vertex_experiment_name,
+        vertex_run_name
     )
-    run = aiplatform.ExperimentRun(
-        run_name = vertex_run_name,
-        experiment = vertex_experiment_name
-    )
+
+    logger.info('Logging parameters to the experiment run')
     run.log_params({
         'DATALOADER_CONFIG_batch_size': batch_size,
         'DATALOADER_CONFIG_max_prediction_length': max_prediction_length,
