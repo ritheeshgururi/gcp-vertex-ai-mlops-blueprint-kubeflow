@@ -11,6 +11,7 @@ from components.deploy_component import deploy_component as DeployOp
 
 import configuration.pipeline_config as pipeline_config
 
+#wrapping components into Vertex AI custom training jobs
 preprocessOP = create_custom_training_job_from_component(
     PreprocessOp,
     display_name = pipeline_config.DisplayNames.PREPROCESS_DISPLAY_NAME,
@@ -62,8 +63,10 @@ def training_pipeline(
     notify_email_task = VertexNotificationEmailOp(
         recipients = pipeline_config.NotificationEmail.RECIPIENTS_LIST
     )
-    with dsl.ExitHandler(notify_email_task, name = 'Email Notification Exit Handler'):
-        
+    with dsl.ExitHandler(
+        exit_task = notify_email_task,
+        name = 'Email Notification Exit Handler'
+    ):
         #pipeline components
         preprocess_task = preprocessOP(
             project = project,
@@ -73,7 +76,7 @@ def training_pipeline(
             data_path = pipeline_config.ProjectConfig.DATA_PATH,
             vertex_experiment_name = vertex_experiment_name,
             vertex_run_name = vertex_run_name
-        )
+        ).set_display_name(pipeline_config.DisplayNames.PREPROCESS_DISPLAY_NAME)
 
         dataloader_task = dataloaderOP(
             project = project,
@@ -82,7 +85,7 @@ def training_pipeline(
             vertex_experiment_name = vertex_experiment_name,
             vertex_run_name = vertex_run_name,
             preprocessed_data_input = preprocess_task.outputs['preprocessed_data'],
-        )
+        ).set_display_name(pipeline_config.DisplayNames.DATALOADER_DISPLAY_NAME)
 
         hpt_task = hptOP(
             project = project,
@@ -92,7 +95,7 @@ def training_pipeline(
             vertex_run_name = vertex_run_name,
             train_loader_input = dataloader_task.outputs['train_loader_output'],
             val_loader_input = dataloader_task.outputs['val_loader_output'],
-        )
+        ).set_display_name(pipeline_config.DisplayNames.HPT_DISPLAY_NAME)
 
         training_task = trainingOP(
             project = project,
@@ -104,14 +107,17 @@ def training_pipeline(
             train_loader_input = dataloader_task.outputs['train_loader_output'],
             val_loader_input = dataloader_task.outputs['val_loader_output'],
             best_params_input = hpt_task.outputs['best_params_output'],
-        )
+        ).set_display_name(pipeline_config.DisplayNames.TRAINING_DISPLAY_NAME)
 
-        with dsl.If(do_deploy  == True, name = 'Deploy Condition'):
+        with dsl.If(
+            do_deploy  == True,
+            name = 'Deploy Condition'
+        ):
             deploy_task = deployOP(
                 project = project,
                 location = location,
                 artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
                 vertex_experiment_name = vertex_experiment_name,
                 vertex_run_name = vertex_run_name,
-            )
+            ).set_display_name(pipeline_config.DisplayNames.DEPLOY_DISPLAY_NAME)
             deploy_task.after(training_task)

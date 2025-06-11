@@ -88,8 +88,8 @@ class ServiceAccount:
     SERVICE_ACCOUNT = 'gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com'
 
 class DisplayNames:
-    PREPROCESS_DISPLAY_NAME = 'PreProcessing Pipeline'
-    DATALOADER_DISPLAY_NAME = 'DataLoader Pipeline'
-    HPT_DISPLAY_NAME = 'HPT Pipeline'
-    TRAINING_DISPLAY_NAME = 'Training Pipeline'
-    DEPLOY_DISPLAY_NAME = 'Deploy and Monitor Pipeline'
+    PREPROCESS_DISPLAY_NAME = 'Prerocessing Component'
+    DATALOADER_DISPLAY_NAME = 'Dataloader Component'
+    HPT_DISPLAY_NAME = 'HPT Component'
+    TRAINING_DISPLAY_NAME = 'Training Component'
+    DEPLOY_DISPLAY_NAME = 'Deploy Component'

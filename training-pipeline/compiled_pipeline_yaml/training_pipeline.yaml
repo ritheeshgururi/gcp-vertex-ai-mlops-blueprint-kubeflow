@@ -30,7 +30,7 @@ components:
               vertex_run_name:
                 componentInputParameter: pipelinechannel--vertex_run_name
           taskInfo:
-            name: deploy-component
+            name: Deploy Component
     inputDefinitions:
       parameters:
         pipelinechannel--do_deploy:
@@ -59,7 +59,7 @@ components:
           isOptional: true
           parameterType: STRING
         display_name:
-          defaultValue: DataLoader Pipeline
+          defaultValue: Dataloader Component
           isOptional: true
           parameterType: STRING
         enable_web_access:
@@ -198,7 +198,7 @@ components:
           isOptional: true
           parameterType: STRING
         display_name:
-          defaultValue: Deploy and Monitor Pipeline
+          defaultValue: Deploy Component
           isOptional: true
           parameterType: STRING
         enable_web_access:
@@ -357,7 +357,7 @@ components:
               vertex_run_name:
                 componentInputParameter: pipelinechannel--vertex_run_name
           taskInfo:
-            name: dataloader-component
+            name: Dataloader Component
         hpt-component:
           cachingOptions:
             enableCache: true
@@ -388,7 +388,7 @@ components:
               vertex_run_name:
                 componentInputParameter: pipelinechannel--vertex_run_name
           taskInfo:
-            name: hpt-component
+            name: HPT Component
         preprocess-component:
           cachingOptions:
             enableCache: true
@@ -414,7 +414,7 @@ components:
               vertex_run_name:
                 componentInputParameter: pipelinechannel--vertex_run_name
           taskInfo:
-            name: preprocess-component
+            name: Prerocessing Component
         training-component:
           cachingOptions:
             enableCache: true
@@ -454,7 +454,7 @@ components:
               vertex_run_name:
                 componentInputParameter: pipelinechannel--vertex_run_name
           taskInfo:
-            name: training-component
+            name: Training Component
     inputDefinitions:
       parameters:
         pipelinechannel--do_deploy:
@@ -487,7 +487,7 @@ components:
           isOptional: true
           parameterType: STRING
         display_name:
-          defaultValue: HPT Pipeline
+          defaultValue: HPT Component
           isOptional: true
           parameterType: STRING
         enable_web_access:
@@ -621,7 +621,7 @@ components:
         data_path:
           parameterType: STRING
         display_name:
-          defaultValue: PreProcessing Pipeline
+          defaultValue: Prerocessing Component
           isOptional: true
           parameterType: STRING
         enable_web_access:
@@ -766,7 +766,7 @@ components:
           isOptional: true
           parameterType: STRING
         display_name:
-          defaultValue: Training Pipeline
+          defaultValue: Training Component
           isOptional: true
           parameterType: STRING
         enable_web_access:
