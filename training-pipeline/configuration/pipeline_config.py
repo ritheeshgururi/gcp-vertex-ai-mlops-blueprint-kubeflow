@@ -17,6 +17,9 @@ class ProjectConfig:
     
 class ExperimentConfig:
     EXPERIMENT_NAME = 'tft-training-experiment-1'
+
+class ControlFlow:
+    DEPLOY = True
     
 class Dependencies:
     PREPROCESS_PACKAGES = [

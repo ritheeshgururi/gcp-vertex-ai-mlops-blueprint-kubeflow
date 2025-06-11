@@ -58,7 +58,9 @@ def training_pipeline(
 ):
     """Training pipeline"""
     
-    notify_email_task = VertexNotificationEmailOp(recipients = pipeline_config.NotificationEmail.RECIPIENTS_LIST)
+    notify_email_task = VertexNotificationEmailOp(
+        recipients = pipeline_config.NotificationEmail.RECIPIENTS_LIST
+    )
     with dsl.ExitHandler(notify_email_task):
         
         #pipeline components
@@ -102,13 +104,13 @@ def training_pipeline(
             val_loader_input = dataloader_task.outputs['val_loader_output'],
             best_params_input = hpt_task.outputs['best_params_output'],
         )
-        
-        deploy_task = deployOP(
-            project = project,
-            location = location,
-            artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
-            vertex_experiment_name = vertex_experiment_name,
-            vertex_run_name = vertex_run_name,
-        )
-        
-        deploy_task.after(training_task)
+
+        with dsl.If(pipeline_config.ControlFlow.DEPLOY):
+            deploy_task = deployOP(
+                project = project,
+                location = location,
+                artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
+                vertex_experiment_name = vertex_experiment_name,
+                vertex_run_name = vertex_run_name,
+            )
+            deploy_task.after(training_task)
