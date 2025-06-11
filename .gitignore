@@ -1,9 +1,8 @@
 #custom
-*.csv
-*.jsonl
-*.zip
+data/
 *.gitlab-ci.yml
 docker_commands.txt
+batch-prediction-job/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

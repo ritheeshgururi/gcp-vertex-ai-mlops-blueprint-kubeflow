@@ -8,5 +8,9 @@ which is better: Downloading data from gcs to local temp folder, or streaming do
 use:
 gcloud config set auth/impersonate_service_account [service account email id]
 
-modify streaming and gcs upload logic
 refactor code
+get versions for all requirements
+get iam roles list
+rm ^2 commits
+update data directory with all the necessary gcs files.
+add if else logic in model uploading
