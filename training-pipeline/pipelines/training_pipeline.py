@@ -7,7 +7,7 @@ from components.preprocess_component import preprocess_component as PreprocessOp
 from components.dataloader_component import dataloader_component as DataloaderOp
 from components.hpt_component import hpt_component as HptOp
 from components.training_component import training_component as TrainingOp
-from components.deploy_and_monitor_component import deploy_and_monitor_component as DeployAndMonitorOp
+from components.deploy_component import deploy_component as DeployOp
 
 import configuration.pipeline_config as pipeline_config
 
@@ -39,8 +39,8 @@ trainingOP = create_custom_training_job_from_component(
     service_account = pipeline_config.ServiceAccount.SERVICE_ACCOUNT
 )
 
-deployandmonitorOP = create_custom_training_job_from_component(
-    DeployAndMonitorOp,
+deployOP = create_custom_training_job_from_component(
+    DeployOp,
     display_name = pipeline_config.DisplayNames.DEPLOY_DISPLAY_NAME,
     machine_type = pipeline_config.ComputeResources.DEPLOY_MACHINE_TYPE,
     service_account = pipeline_config.ServiceAccount.SERVICE_ACCOUNT
@@ -103,11 +103,11 @@ def training_pipeline(
             best_params_input = hpt_task.outputs['best_params_output'],
         )
         
-        deploy_and_monitor_task = deployandmonitorOP(
+        deploy_task = deployOP(
             project = project,
             location = location,
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
             vertex_run_name = vertex_run_name,
         )
         
-        deploy_and_monitor_task.after(training_task)
+        deploy_task.after(training_task)

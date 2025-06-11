@@ -56,32 +56,3 @@ class DeployConfig:
     SERVING_CONTAINER_IMAGE_URI = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/tft-cpr-serving-container/serving-container-cpr:latest'
     MODEL_DISPLAY_NAME = 'tft-cpr-model'
     SERVING_CONTAINER_MACHINE_TYPE = 'n2-standard-2'
-    
-class MonitorConfig:
-    DEFAULT_THRESHOLD_VALUE = 0.001
-
-    DATASET_URI = 'gs://stallion-data/merged_dataset.csv'
-    SKEW_THRESHOLDS = {
-        'volume': DEFAULT_THRESHOLD_VALUE,
-    }    
-    ATTRIB_SKEW_THRESHOLDS = {
-        'industry_volume': DEFAULT_THRESHOLD_VALUE,
-        'avg_volume_by_agency': DEFAULT_THRESHOLD_VALUE,
-        'avg_volume_by_sku': DEFAULT_THRESHOLD_VALUE,
-    }  
-    TARGET = 'volume'
-    
-    DRIFT_THRESHOLDS = {
-        'volume': DEFAULT_THRESHOLD_VALUE,
-    }
-    ATTRIB_DRIFT_THRESHOLDS = {
-        'price_regular': DEFAULT_THRESHOLD_VALUE,
-        'price_actual': DEFAULT_THRESHOLD_VALUE,
-        'discount_in_percent': DEFAULT_THRESHOLD_VALUE,
-    }    
-        
-    LOG_SAMPLE_RATE = 1
-    MONITOR_INTERVAL = 1  
-    USER_EMAIL = ['ritheeshgururi187@gmail.com, gurugulapudi2024@gmail.com']
-    
-    JOB_NAME = 'tft-monitoring-job'

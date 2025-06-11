@@ -2,6 +2,8 @@
 *.csv
 *.jsonl
 *.zip
+*.gitlab-ci.yml
+docker_commands.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

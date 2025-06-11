@@ -1,9 +1,11 @@
+import logging
 import pandas as pd
 import numpy as np
-from google.cloud import storage, aiplatform
-import logging
-from utils import step_utils
+
+from google.cloud import aiplatform
+
 from configuration.step_config import PreprocessConfig
+from utils import step_utils
 
 def preprocess_step(
     project,
@@ -16,26 +18,39 @@ def preprocess_step(
     vertex_run_name,
 ):
     """Fetches and preprocesses the Volume Forecasting Data"""
-    
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
     ###fetching preprocessing variables/parameters from the step_config.py file
     special_days = PreprocessConfig.special_days
     volume_transform_type = PreprocessConfig.volume_transform_type
     
     ###logging parameters to the vertex experiment run
-    aiplatform.init(project = project, location = location, experiment = vertex_experiment_name)
-    run = aiplatform.ExperimentRun(run_name = vertex_run_name, experiment = vertex_experiment_name)
+    logger.info('Initializing Vertex AI with experiment name')
+    aiplatform.init(
+        project = project,
+        location = location,
+        experiment = vertex_experiment_name
+    )
+
+    logger.info('Instantiating experiment run')
+    run = aiplatform.ExperimentRun(
+        run_name = vertex_run_name,
+        experiment = vertex_experiment_name
+    )
+
+    logger.info('Logging parameters to the experiment run')
     run.log_params({
         'PREPROCESS_CONFIG_special_days': str(special_days),
         'PREPROCESS_CONFIG_volume_transform_type': volume_transform_type
     })
     
     ###start of preprocessing logic
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    logger.info(f'Starting preprocessing')
+    logger.info('Starting preprocessing')
     
     #download and process data
+    logger.info('Fetching data from GCS')
     local_path = '/tmp/raw_data.csv'
     step_utils.download_file_from_gcs(project, data_bucket, data_path, local_path)
     

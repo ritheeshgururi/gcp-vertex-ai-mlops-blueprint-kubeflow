@@ -4,7 +4,7 @@ import pandas as pd
 from google.cloud import aiplatform
 from utils.data_utils import upload_file_to_gcs, download_file_from_gcs
 
-def endpoint_prediction_step(
+def endpoint_prediction(
     project,
     location,
     gcs_bucket,
@@ -46,9 +46,9 @@ def main():
     LOCATION = 'asia-south1'
     GCS_BUCKET = 'online-prediction-volume-forecasting'
     DATA_PATH = 'input/endpoint_prediction_dataset.csv'
-    ENDPOINT_ID = '427784789995552768'
+    ENDPOINT_ID = '7615529795278864384'
 
-    endpoint_prediction_step(
+    endpoint_prediction(
         project = PROJECT_ID,
         location = LOCATION,
         gcs_bucket = GCS_BUCKET,

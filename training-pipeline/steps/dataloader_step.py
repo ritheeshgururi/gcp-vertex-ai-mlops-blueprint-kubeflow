@@ -1,10 +1,13 @@
+import logging
 import pandas as pd
+
 from pytorch_forecasting import TimeSeriesDataSet
 from pytorch_forecasting.data import GroupNormalizer
-from google.cloud import storage, aiplatform
-import logging
-from utils import step_utils
+
+from google.cloud import aiplatform
+
 from configuration.step_config import PreprocessConfig, DataloaderConfig
+from utils import step_utils
 
 def dataloader_step(
     project,
@@ -31,8 +34,15 @@ def dataloader_step(
     train_val_batch_size_ratio = DataloaderConfig.train_val_batch_size_ratio
     
     ###logging parameters to the vertex experiment run
-    aiplatform.init(project = project, location = location, experiment = vertex_experiment_name)
-    run = aiplatform.ExperimentRun(run_name = vertex_run_name, experiment = vertex_experiment_name)
+    aiplatform.init(
+        project = project,
+        location = location,
+        experiment = vertex_experiment_name
+    )
+    run = aiplatform.ExperimentRun(
+        run_name = vertex_run_name,
+        experiment = vertex_experiment_name
+    )
     run.log_params({
         'DATALOADER_CONFIG_batch_size': batch_size,
         'DATALOADER_CONFIG_max_prediction_length': max_prediction_length,
