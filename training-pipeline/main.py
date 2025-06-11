@@ -34,6 +34,7 @@ with aiplatform.start_run(run_name) as run:
             'location': pipeline_config.ProjectConfig.LOCATION,
             'vertex_experiment_name': pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             'vertex_run_name': run_name,
+            'do_deploy': pipeline_config.ControlFlow.DO_DEPLOY
         },
         enable_caching = True,
     )

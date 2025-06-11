@@ -19,7 +19,7 @@ class ExperimentConfig:
     EXPERIMENT_NAME = 'tft-training-experiment-1'
 
 class ControlFlow:
-    DEPLOY = True
+    DO_DEPLOY = False
     
 class Dependencies:
     PREPROCESS_PACKAGES = [
