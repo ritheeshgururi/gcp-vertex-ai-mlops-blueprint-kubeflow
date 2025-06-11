@@ -2,7 +2,6 @@ import json
 import time
 import pandas as pd
 from google.cloud import aiplatform
-from utils.data_utils import upload_file_to_gcs, download_file_from_gcs
 
 def endpoint_prediction(
     project,
@@ -17,12 +16,9 @@ def endpoint_prediction(
     print(f'Using endpoint: {endpoint.display_name} ({endpoint.name})')
 
     #download and process data
-    print('Downloading prediction data from GCS')
-    local_path = '/tmp/raw_data.csv'
-    download_file_from_gcs(project, gcs_bucket, data_path, local_path)
-    print('Data downloading complete')
+    print('Streaming prediction data from GCS')
     
-    data = pd.read_csv(local_path)
+    data = pd.read_csv(f'gs://{gcs_bucket}/{data_path}')
     data_list = data.values.tolist()
     
     json_input_data = json.dumps({'instances': data_list})
@@ -34,10 +30,9 @@ def endpoint_prediction(
     print('Predictions received from endpoint')
 
     predicted_data = pd.DataFrame(predictions_endpoint.json())
-    predicted_data.to_csv('/tmp/model_predictions.csv', index=False)
-    
-    print(f'Uploading predictions to GCS path: gs://{gcs_bucket}/output/model_predictions.csv')
-    upload_file_to_gcs(project, gcs_bucket, '/tmp/model_predictions.csv', 'output/model_predictions.csv')
+
+    print(f'Streaming predictions to GCS path: gs://{gcs_bucket}/output/model_predictions.csv')
+    predicted_data.to_csv(f'gs://{gcs_bucket}/output/model_predictions.csv', index=False)
 
     print(f'Endpoint prediction completed successfully in {end_time - start_time:.2f} seconds')
 
