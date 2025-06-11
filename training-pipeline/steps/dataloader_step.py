@@ -4,8 +4,6 @@ import pandas as pd
 from pytorch_forecasting import TimeSeriesDataSet
 from pytorch_forecasting.data import GroupNormalizer
 
-from google.cloud import aiplatform
-
 from configuration.step_config import PreprocessConfig, DataloaderConfig
 from utils import step_utils
 
@@ -21,6 +19,9 @@ def dataloader_step(
     vertex_run_name,
 ):
     """Creates training and validation datasets."""
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
     ###fetching the dataloader component variables/parameters from the step_config.py file
     special_days = PreprocessConfig.special_days
@@ -35,7 +36,7 @@ def dataloader_step(
     
     ###logging parameters to the vertex experiment run
     logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
-    run = step_utils.get_experiment_run(
+    run = step_utils.get_vertex_experiment_run(
         project,
         location,
         vertex_experiment_name,
@@ -55,7 +56,6 @@ def dataloader_step(
     })
     
     ###start of dataloaders creation logic
-    logger = logging.getLogger(__name__)
     logger.info(f'Creating dataloaders')
     
     data = pd.read_pickle(preprocessed_data_input)
@@ -96,7 +96,7 @@ def dataloader_step(
     validation = TimeSeriesDataSet.from_dataset(training, data, predict = True, stop_randomization = True)
     
     train_dataloader = training.to_dataloader(train = True, batch_size = batch_size, num_workers = num_workers)
-    val_dataloader = validation.to_dataloader(train = False, batch_size = batch_size*train_val_batch_size_ratio, num_workers = num_workers)
+    val_dataloader = validation.to_dataloader(train = False, batch_size = batch_size * train_val_batch_size_ratio, num_workers = num_workers)
     ###end of dataloaders creation logic
     
     #saving data to component outputs    

@@ -1,5 +1,7 @@
 import logging
+
 from google.cloud import aiplatform
+
 from configuration.step_config import DeployConfig
 
 def deploy_step(
@@ -9,7 +11,8 @@ def deploy_step(
     vertex_run_name,
 ):
     """Uploads the model to Model Registry, deploys the same to an endpoint, and creates model monitoring job"""
-    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)    
     
     aiplatform.init(project = project, location = location)
 
@@ -24,14 +27,23 @@ def deploy_step(
     )
     logger.info('Model uploaded to Model Registry')
 
-    ###start of model endpoint deployment
-    logger.info('Start of endpoint creation')
-    endpoint = aiplatform.Endpoint.create(
-        display_name = DeployConfig.MODEL_DISPLAY_NAME,
-        project = project,
-        location = location
-    )
-    logger.info('Endpoint created')
+    ###start of model deployment to endpoint
+    if DeployConfig.deploy_to_existing_endpoint == True:
+        #deploy to existing endpoint mode
+        logger.info('Deploy to existing endpoint mode detected. Fetching existing endpoint')
+        endpoint = aiplatform.Endpoint(
+            endpoint_name = DeployConfig.EXISTING_ENDPOINT_ID
+        )
+        logger.info('Endpoint fetched succesfully')
+    else:
+        #deploy to new endoint mode
+        logger.info('Deploy to new endpoint mode detected. Start of endpoint creation')
+        endpoint = aiplatform.Endpoint.create(
+            display_name = DeployConfig.ENDPOINT_DISPLAY_NAME,
+            project = project,
+            location = location
+        )
+        logger.info('Endpoint created')
 
     logger.info('Start of deploying model to endpoint')
     endpoint = model.deploy(

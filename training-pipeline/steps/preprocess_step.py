@@ -2,8 +2,6 @@ import logging
 import pandas as pd
 import numpy as np
 
-from google.cloud import aiplatform
-
 from configuration.step_config import PreprocessConfig
 from utils import step_utils
 
@@ -28,7 +26,7 @@ def preprocess_step(
     
     ###logging parameters to the vertex experiment run
     logger.info('Initializing Vertex AI with experiment name and instantiating experiment run')
-    run = step_utils.get_experiment_run(
+    run = step_utils.get_vertex_experiment_run(
         project,
         location,
         vertex_experiment_name,

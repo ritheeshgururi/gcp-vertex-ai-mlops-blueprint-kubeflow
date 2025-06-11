@@ -1,8 +1,9 @@
-from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
-from google.cloud import storage, aiplatform
 import logging
-from utils import step_utils
+
+from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
+
 from configuration.step_config import HPTConfig
+from utils import step_utils
 
 def hpt_step(
     project,
@@ -15,6 +16,9 @@ def hpt_step(
     best_params_output,
 ):
     """Tunes Hyperparameters using optuna"""
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
     ###fetching hyperparameter tuning variables/parameters from the step_config.py file
     n_trials = HPTConfig.n_trials
@@ -55,7 +59,6 @@ def hpt_step(
     })
     
     ###start of hyperparameter tuning logic
-    logger = logging.getLogger(__name__)
     logger.info(f'Starting hyperparameter tuning')
     
     #loading data from component inputs    

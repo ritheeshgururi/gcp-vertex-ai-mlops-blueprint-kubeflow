@@ -1,14 +1,14 @@
+import logging
+
+import torch
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import EarlyStopping, LearningRateMonitor
 from lightning.pytorch.loggers import TensorBoardLogger
 from pytorch_forecasting import TemporalFusionTransformer
 from pytorch_forecasting.metrics import QuantileLoss
-import torch
-from google.cloud import storage, aiplatform
-from datetime import datetime
-import logging
-from utils import step_utils
+
 from configuration.step_config import TrainingConfig
+from utils import step_utils
 
 def training_step(
     project,
@@ -24,7 +24,10 @@ def training_step(
     ckpt_model_output
 ):
     """Trains the TFT time series forecasting model"""
-    
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+        
     ###fetching model training variables/parameters from the step_config.py file
     max_epochs = TrainingConfig.max_epochs
     early_stopping_monitor = TrainingConfig.early_stopping_monitor
@@ -63,7 +66,6 @@ def training_step(
     })
     
     ###start of model training logic
-    logger = logging.getLogger(__name__)
     logger.info('Starting model training')
     
     # Load raw data
@@ -145,5 +147,4 @@ def training_step(
         'TRAINING_OUTPUT_pth_model_artifact_uri': f'gs://{artifact_bucket}/{model_pth_path}',
         'TRAINING_OUTPUT_ckpt_model_artifact_uri': f'gs://{artifact_bucket}/{model_ckpt_path}'
     })
-    
     logger.info('Model artifact URI logged as a parameter in experiment run')

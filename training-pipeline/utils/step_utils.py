@@ -32,7 +32,7 @@ def save_data_to_component_output_in_pickle(source_data, component_output):
     with open(component_output, 'wb') as f:
         pickle.dump(source_data, f)
         
-def get_experiment_run(project, location, experiment_name, run_name):
+def get_vertex_experiment_run(project, location, experiment_name, run_name):
     """Initializes Vertex AI and returns an experiment run object"""
 
     aiplatform.init(

@@ -7,3 +7,7 @@ which is better: Downloading data from gcs to local temp folder, or streaming do
 
 use:
 gcloud config set auth/impersonate_service_account [service account email id]
+
+modify streaming and gcs upload logic
+optimize endpoint depoyment logic
+refactor code
