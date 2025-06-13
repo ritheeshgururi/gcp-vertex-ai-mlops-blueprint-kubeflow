@@ -1,7 +1,7 @@
 from utils.utils import get_base_image_path
 
 class Root:
-    DISPLAY_NAME = 'batch-inference-pipeline'
+    DISPLAY_NAME = 'TFT Batch Inference Pipeline'
     PIPELINE_ROOT = f'gs://vertex-pipeline-root-inference'
     PIPELINE_PACKAGE_YAML_PATH = 'compiled_pipeline_yaml/batch_inference_pipeline.yaml'
     DESCRIPTION = 'End to end pipeline for batch inference'
@@ -28,4 +28,7 @@ class ComputeResources:
     MACHINE_TYPE = 'n2-standard-4'
 
 class NotificationEmail:
-    NOTIFICATION_EMAIL_LIST = ['ritheeshgururi187@gmail.com']
+    NOTIFICATION_EMAIL_LIST = ['ritheeshgururi187@gmail.com', 'gurugulapudi2024@gmail.com']
+
+class DisplayNames:
+    BATCH_INFERENCE_DISPLAY_NAME = 'Batch Inference Component'

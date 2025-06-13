@@ -1,19 +1,28 @@
 from google.cloud import storage, aiplatform
 import pickle
 
-def download_file_from_gcs(project, gcs_bucket, gcs_path, local_path):
-    """Donloads a file from a GCS bucket"""
+def download_file_from_gcs(
+        project,
+        gcs_bucket,
+        gcs_path,
+        local_path
+    ):
+    """Downloads a file from a GCS bucket"""
     
     client = storage.Client(project=project)
     bucket = client.bucket(gcs_bucket)
     blob = bucket.blob(gcs_path)
     if blob.exists():
         blob.download_to_filename(local_path)
-        return True
     else:
-        return False
+        raise Exception(f'Blob {gcs_path} not found in bucket {gcs_bucket}.')
 
-def upload_file_to_gcs(project, bucket_name, source_file_path, destination_blob_name):
+def upload_file_to_gcs(
+        project,
+        bucket_name,
+        source_file_path, 
+        destination_blob_name
+    ):
     """Uploads a file to the specified GCS bucket"""
 
     client = storage.Client(project=project)
@@ -32,7 +41,12 @@ def save_data_to_component_output_in_pickle(source_data, component_output):
     with open(component_output, 'wb') as f:
         pickle.dump(source_data, f)
         
-def get_vertex_experiment_run(project, location, experiment_name, run_name):
+def get_vertex_experiment_run(
+        project,
+        location,
+        experiment_name,
+        run_name
+    ):
     """Initializes Vertex AI and returns an experiment run object"""
 
     aiplatform.init(

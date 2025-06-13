@@ -16,7 +16,7 @@ def endpoint_prediction(
     print(f'Using endpoint: {endpoint.display_name} ({endpoint.name})')
 
     #download and process data
-    print('Streaming prediction data from GCS')
+    print('Streaming prediction data from GCS path: gs://{gcs_bucket}/{data_path} with pandas using gcsfs')
     data = pd.read_csv(f'gs://{gcs_bucket}/{data_path}')
     data_list = data.values.tolist()
     
@@ -40,7 +40,7 @@ def main():
     LOCATION = 'asia-south1'
     GCS_BUCKET = 'online-prediction-volume-forecasting'
     DATA_PATH = 'input/endpoint_prediction_dataset.csv'
-    ENDPOINT_ID = '3758865217505722368'
+    ENDPOINT_ID = '1630914393573163008'
 
     endpoint_prediction(
         project = PROJECT_ID,

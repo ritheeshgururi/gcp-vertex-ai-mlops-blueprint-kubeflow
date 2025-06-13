@@ -13,7 +13,7 @@ def preprocess_step(
     data_path,
     preprocessed_data_path,
     vertex_experiment_name,
-    vertex_run_name,
+    vertex_run_name
 ):
     """Fetches and preprocesses the Volume Forecasting Data"""
 
@@ -33,7 +33,7 @@ def preprocess_step(
         vertex_run_name
     )
 
-    logger.info('Logging parameters to the experiment run')
+    logger.info('Logging step config parameters to the experiment run')
     run.log_params({
         'PREPROCESS_CONFIG_special_days': str(special_days),
         'PREPROCESS_CONFIG_volume_transform_type': volume_transform_type
@@ -42,11 +42,8 @@ def preprocess_step(
     ###start of preprocessing logic
     logger.info('Starting preprocessing')
     
-    #download and process data
-    logger.info('Streaming data from GCS')
-    # local_path = '/tmp/raw_data.csv'
-    # step_utils.download_file_from_gcs(project, data_bucket, data_path, local_path)
-    
+    #stream data directly from GCS with pandas using gcsfs
+    logger.info(f'Streaming data from GCS path - gs://{data_bucket}/{data_path} using gcsfs')
     data = pd.read_csv(f'gs://{data_bucket}/{data_path}')
     
     data['date'] = pd.to_datetime(data['date'])
@@ -67,11 +64,18 @@ def preprocess_step(
     #saving to component output
     data.to_pickle(preprocessed_data_path)
     
-    #saving to GCS   
-    preprocessed_gcs_path = f'{vertex_run_name}/preprocessing_artifacts/preprocessed_data.pkl'   
-    step_utils.upload_file_to_gcs(project, artifact_bucket, preprocessed_data_path, preprocessed_gcs_path)
+    #saving to GCS
+    preprocessed_gcs_path = f'{vertex_run_name}/preprocessing_artifacts/preprocessed_data.pkl'
+    logger.info(f'Archiving preprocessed data to GCS path: gs://{artifact_bucket}/{preprocessed_gcs_path}')
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        preprocessed_data_path,
+        preprocessed_gcs_path
+    )
+    logger.info(f'Preprocessed data archived to GCS path: gs://{artifact_bucket}/{preprocessed_gcs_path}')
     
     run.log_params({
         'PREPROCESS_OUTPUT_gcs_uri': f'gs://{artifact_bucket}/{preprocessed_gcs_path}'
     })
-    logger.info(f'Preprocessing completed and saved to GCS: gs://{artifact_bucket}/{preprocessed_gcs_path}')
+    logger.info('Preprocessing component completed and output artifacts logged to the experiment run')

@@ -1,9 +1,10 @@
-from utils.utils import get_base_image_path
+from utils import utils
 
-BASE_IMAGE_PATH = get_base_image_path()
+#getting base image path as argument
+BASE_IMAGE_PATH = utils.get_base_image_path()
 
 class Root:
-    DISPLAY_NAME = 'timeseries-tft-training-pipeline'
+    DISPLAY_NAME = 'TFT Timeseries Training Pipeline'
     PIPELINE_ROOT = f'gs://vertex-pipeline-root-training'
     PIPELINE_PACKAGE_YAML_PATH = 'compiled_pipeline_yaml/training_pipeline.yaml'
     DESCRIPTION = 'End to end pipeline for training the Temporal Fusion Transformer model'
@@ -19,7 +20,7 @@ class ExperimentConfig:
     EXPERIMENT_NAME = 'tft-training-experiment-1'
 
 class ControlFlow:
-    DO_DEPLOY = False
+    DO_DEPLOY = True
     
 class Dependencies:
     PREPROCESS_PACKAGES = [
@@ -62,17 +63,18 @@ class Dependencies:
         'google-cloud-storage',
         'google-cloud-aiplatform',
         'fastapi',
-        # 'google-cloud-aiplatform[prediction]>=1.16.0'
     ]
     
 class BaseImages:
     MACHINE_BASE_IMAGE = f'{BASE_IMAGE_PATH}'
     
+#uncomment below lines to use target image if building base image with kfp build
 # class TargetImages:
-#     PREPROCESS_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/target_image:v10'
-#     DATALOADER_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/dataloader_component'
-#     HPT_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/hpt_component'
-#     TRAINING_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/training_component'
+#     PREPROCESS_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/target_image:latest'
+#     DATALOADER_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/dataloader_component:latest'
+#     HPT_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/hpt_component:latest'
+#     TRAINING_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/training_component:latest'
+#     DEPLOY_IMAGE = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/training_component:latest'
     
 class ComputeResources:
     PREPROCESS_MACHINE_TYPE = 'e2-standard-4'
@@ -82,13 +84,13 @@ class ComputeResources:
     DEPLOY_MACHINE_TYPE = 'e2-standard-4'
     
 class NotificationEmail:
-    RECIPIENTS_LIST = ['ritheeshgururi187@gmail.com']
+    RECIPIENTS_LIST = ['ritheeshgururi187@gmail.com', 'gurugulapudi2024@gmail.com']
     
 class ServiceAccount:
     SERVICE_ACCOUNT = 'gcp-vertexai-mlops-blueprint@gcp-vertexai-mlops-blueprint.iam.gserviceaccount.com'
 
 class DisplayNames:
-    PREPROCESS_DISPLAY_NAME = 'Prerocessing Component'
+    PREPROCESS_DISPLAY_NAME = 'Preprocessing Component'
     DATALOADER_DISPLAY_NAME = 'Dataloader Component'
     HPT_DISPLAY_NAME = 'HPT Component'
     TRAINING_DISPLAY_NAME = 'Training Component'

@@ -28,7 +28,7 @@ def deploy_step(
     model = aiplatform.Model.upload(
         parent_model = DeployConfig.PARENT_MODEL if DeployConfig.deploy_as_version else None,
         display_name = DeployConfig.MODEL_DISPLAY_NAME,
-        artifact_uri = f'gs://{artifact_bucket}/{vertex_run_name}/ckpt_model_artifacts',
+        artifact_uri = f'gs://{artifact_bucket}/{vertex_run_name}/training_artifacts/ckpt_model_artifact/',
         serving_container_image_uri = DeployConfig.SERVING_CONTAINER_IMAGE_URI,
         serving_container_predict_route = DeployConfig.SERVING_CONTAINER_PREDICT_ROUTE,
         serving_container_health_route = DeployConfig.SERVING_CONTAINER_HEALTH_ROUTE
@@ -64,8 +64,9 @@ def deploy_step(
         machine_type = DeployConfig.SERVING_CONTAINER_MACHINE_TYPE
     )
     logger.info('Model deployed to endpoint')
+    ###end of model endpoint deployment
 
     run.log_params({
         'DEPLOY_OUTPUT_deployed_model_endpoint_resource_name': deployed_model_endpoint.resource_name
     })
-    ###end of model endpoint deployment
+    logger.info('Deploy component completed and artfacts logged to experiment run')

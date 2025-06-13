@@ -79,7 +79,7 @@ def hpt_step(
         dropout_range = dropout_range,
         trainer_kwargs = dict(limit_train_batches = trainer_kwargs_limit_train_batches),
         reduce_on_plateau_patience = reduce_on_plateau_patience,
-        use_learning_rate_finder = use_learning_rate_finder,
+        use_learning_rate_finder = use_learning_rate_finder
     )
     ###end of hyperparameter tuning logic
     
@@ -88,10 +88,16 @@ def hpt_step(
     
     #saving to GCS
     best_params_gcs_path = f'{vertex_run_name}/hpt_artifacts/best_params.pkl'
-    step_utils.upload_file_to_gcs(project, artifact_bucket, best_params_output, best_params_gcs_path)
+    logger.info(f'Archiving preprocessed data to GCS path: gs://{artifact_bucket}/{best_params_gcs_path}')
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        best_params_output,
+        best_params_gcs_path
+    )
+    logger.info(f'Best parameters archived to GCS path: gs://{artifact_bucket}/{best_params_gcs_path}')
 
     run.log_params({
         'HPT_OUTPUT_gcs_uri': f'gs://{artifact_bucket}/{best_params_gcs_path}'
     })
-    
-    logger.info(f'Best parameters saved to GCS: gs://{artifact_bucket}/{best_params_gcs_path}')
+    logger.info(f'Hyperparameter tuning component completed and output artifacts logged to experiment run')

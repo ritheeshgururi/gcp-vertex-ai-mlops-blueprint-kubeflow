@@ -1,5 +1,4 @@
 import argparse
-import re
 
 def get_base_image_path():
     """Takes the image_path and image_tag arguments for use in downstream pipeline"""

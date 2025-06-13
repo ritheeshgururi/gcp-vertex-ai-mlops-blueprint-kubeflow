@@ -16,7 +16,7 @@ def dataloader_step(
     train_loader_output,
     val_loader_output,
     vertex_experiment_name,
-    vertex_run_name,
+    vertex_run_name
 ):
     """Creates training and validation datasets."""
 
@@ -43,7 +43,7 @@ def dataloader_step(
         vertex_run_name
     )
 
-    logger.info('Logging parameters to the experiment run')
+    logger.info('Logging step config parameters to the experiment run')
     run.log_params({
         'DATALOADER_CONFIG_batch_size': batch_size,
         'DATALOADER_CONFIG_max_prediction_length': max_prediction_length,
@@ -52,7 +52,7 @@ def dataloader_step(
         'DATALOADER_CONFIG_min_prediction_length': min_prediction_length,
         'DATALOADER_CONFIG_target_normalizer_transformation': target_normalizer_transformation,
         'DATALOADER_CONFIG_num_workers': num_workers,
-        'DATALOADER_CONFIG_train_val_batch_size_ratio': train_val_batch_size_ratio,
+        'DATALOADER_CONFIG_train_val_batch_size_ratio': train_val_batch_size_ratio
     })
     
     ###start of dataloaders creation logic
@@ -90,7 +90,7 @@ def dataloader_step(
         ),
         add_relative_time_idx = True,
         add_target_scales = True,
-        add_encoder_length = True,
+        add_encoder_length = True
     )
     
     validation = TimeSeriesDataSet.from_dataset(training, data, predict = True, stop_randomization = True)
@@ -104,21 +104,33 @@ def dataloader_step(
     step_utils.save_data_to_component_output_in_pickle(train_dataloader, train_loader_output)
     step_utils.save_data_to_component_output_in_pickle(val_dataloader, val_loader_output)
     
-    #saving to GCS
-    #saving training dataset
-    training_dataset_gcs_path = f'{vertex_run_name}/dataloader_artifacts/training_dataset.pkl'   
-    step_utils.upload_file_to_gcs(project, artifact_bucket, training_output, training_dataset_gcs_path)
-    
-    #saving train dataloader
-    train_loader_gcs_path = f'{vertex_run_name}/dataloader_artifacts/train_dataloader.pkl' 
-    step_utils.upload_file_to_gcs(project, artifact_bucket, train_loader_output, train_loader_gcs_path)
+    #saving training dataset, train dataloader, val dataloader to GCS
+    training_dataset_gcs_path = f'{vertex_run_name}/dataloader_artifacts/training_dataset.pkl'
+    train_loader_gcs_path = f'{vertex_run_name}/dataloader_artifacts/train_dataloader.pkl'
+    val_loader_gcs_path = f'{vertex_run_name}/dataloader_artifacts/val_dataloader.pkl'
 
-    #saving val dataloader
-    val_loader_gcs_path = f'{vertex_run_name}/dataloader_artifacts/val_dataloader.pkl' 
-    step_utils.upload_file_to_gcs(project, artifact_bucket, val_loader_output, val_loader_gcs_path)
+    logger.info(f'Archiving dataloader artifacts to GCS path: gs://{artifact_bucket}/{vertex_run_name}/dataloader_artifacts/')
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        training_output,
+        training_dataset_gcs_path
+    )
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        train_loader_output,
+        train_loader_gcs_path
+    )
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        val_loader_output,
+        val_loader_gcs_path
+    )
+    logger.info(f'Dataloader artifacts created and archived to GCS path: gs://{artifact_bucket}/{vertex_run_name}/dataloader_artifacts/')
 
     run.log_params({
         'DATALOADER_OUTPUT_artifacts_directory_uri': f'gs://{artifact_bucket}/{vertex_run_name}/dataloader_artifacts/'
     })
-    
-    logger.info(f'Dataloader artifacts created and saved to GCS: gs://{artifact_bucket}/{vertex_run_name}/dataloader_artifacts/')
+    logger.info('Dataloader component completed and output artifacts logged to experiment run')

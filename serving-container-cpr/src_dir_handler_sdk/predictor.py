@@ -1,10 +1,11 @@
 import numpy as np
 import pandas as pd
-from pytorch_forecasting.data import GroupNormalizer
-from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer
 
 from google.cloud.aiplatform.utils import prediction_utils
 from abc import ABC
+
+from pytorch_forecasting.data import GroupNormalizer
+from pytorch_forecasting import TimeSeriesDataSet, TemporalFusionTransformer
 
 class CprPredictor(ABC):
     def __init__(self):
@@ -12,7 +13,7 @@ class CprPredictor(ABC):
     
     def load(self, artifacts_uri: str):
         prediction_utils.download_model_artifacts(artifacts_uri)
-        self._best_tft = TemporalFusionTransformer.load_from_checkpoint('tft_model.ckpt')
+        self._best_tft = TemporalFusionTransformer.load_from_checkpoint('tft_model_ckpt.ckpt')
     
     def preprocess(self, data:pd.DataFrame):
         try:

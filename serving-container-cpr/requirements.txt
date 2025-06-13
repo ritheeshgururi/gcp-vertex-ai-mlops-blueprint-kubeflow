@@ -3,5 +3,5 @@ pandas
 torch
 fastapi
 pytorch-forecasting
-google-cloud-aiplatform==1.76.0
+google-cloud-aiplatform == 1.76.0
 google-cloud-aiplatform[prediction]

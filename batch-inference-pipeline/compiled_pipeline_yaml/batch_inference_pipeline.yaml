@@ -1,5 +1,5 @@
 # PIPELINE DEFINITION
-# Name: batch-inference-pipeline
+# Name: tft-batch-inference-pipeline
 # Description: End to end pipeline for batch inference
 components:
   comp-batch-inference-component:
@@ -11,7 +11,7 @@ components:
           isOptional: true
           parameterType: STRING
         display_name:
-          defaultValue: batch-inference-pipeline
+          defaultValue: Batch Inference Component
           isOptional: true
           parameterType: STRING
         enable_web_access:
@@ -102,7 +102,7 @@ components:
                 \ import *\n\ndef batch_inference_component():\n    from steps.batch_inference_step\
                 \ import batch_inference_step\n\n    batch_inference_step()\n\n"
               env: []
-              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/my-base-image:v10
+              image_uri: asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/gcp-vertex-ai-mlops-blueprint/inference-image:v8
             disk_spec:
               boot_disk_size_gb: 100.0
               boot_disk_type: pd-ssd
@@ -124,7 +124,7 @@ components:
           componentRef:
             name: comp-batch-inference-component
           taskInfo:
-            name: batch-inference-component
+            name: Batch Inference Component
   comp-vertex-pipelines-notification-email:
     executorLabel: exec-vertex-pipelines-notification-email
     inputDefinitions:
@@ -183,7 +183,7 @@ deploymentSpec:
         image: gcr.io/ml-pipeline/google-cloud-pipeline-components:2.20.0
 pipelineInfo:
   description: End to end pipeline for batch inference
-  name: batch-inference-pipeline
+  name: tft-batch-inference-pipeline
 root:
   dag:
     tasks:
@@ -191,7 +191,7 @@ root:
         componentRef:
           name: comp-exit-handler-1
         taskInfo:
-          name: exit-handler-1
+          name: Email Notification Exit Handler
       vertex-pipelines-notification-email:
         cachingOptions:
           enableCache: true
@@ -208,6 +208,7 @@ root:
               runtimeValue:
                 constant:
                 - ritheeshgururi187@gmail.com
+                - gurugulapudi2024@gmail.com
         taskInfo:
           name: vertex-pipelines-notification-email
         triggerPolicy:

@@ -1,6 +1,8 @@
 import json
-from fastapi import Response, Request
 import pandas as pd
+
+from fastapi import Response, Request
+
 from google.cloud.aiplatform.prediction.handler import PredictionHandler
 
 class CprHandler(PredictionHandler):
@@ -40,7 +42,7 @@ class CprHandler(PredictionHandler):
             json_res = json.dumps(prediction_results)
             
             if is_online_prediction:
-                return Response(content=json_res, media_type='application/json')
+                return Response(content = json_res, media_type = 'application/json')
             else:
                 json_output = json.dumps({'predictions':[prediction_results]})
                 return Response(content=json_output)

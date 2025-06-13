@@ -3,9 +3,16 @@ from google.cloud import aiplatform
 from configurations.step_config import BatchPredictionJobConfig
 
 def batch_inference_step():
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
+    aiplatform.init(
+        project = BatchPredictionJobConfig.PROJECT_ID,
+        location = BatchPredictionJobConfig.LOCATION
+    )
+
     logger.info('Starting batch inference job')
+    
     batch_inference_job = aiplatform.BatchPredictionJob.submit(
         job_display_name = BatchPredictionJobConfig.BATCH_PREDICTION_JOB_NAME,
         model_name = BatchPredictionJobConfig.MODEL_RESOURCE_NAME,

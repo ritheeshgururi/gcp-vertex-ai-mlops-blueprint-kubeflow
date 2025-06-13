@@ -91,7 +91,7 @@ def training_step(
         gradient_clip_val = trainer_gradient_clip_val,
         limit_train_batches = trainer_limit_train_batches,
         callbacks = [lr_logger, early_stop_callback],
-        logger = tb_logger,
+        logger = tb_logger
     )
     
     tft = TemporalFusionTransformer.from_dataset(
@@ -104,13 +104,13 @@ def training_step(
         loss = QuantileLoss(),
         log_interval = tft_log_interval,
         optimizer = tft_optimizer,
-        reduce_on_plateau_patience = tft_reduce_on_plateau_patience,
+        reduce_on_plateau_patience = tft_reduce_on_plateau_patience
     )
     
     trainer.fit(
         tft,
         train_dataloaders = train_dataloader,
-        val_dataloaders = val_dataloader,
+        val_dataloaders = val_dataloader
     )
     
     metrics = trainer.callback_metrics
@@ -130,20 +130,29 @@ def training_step(
     
     #save the trained model as checkpoint ckpt
     trainer.save_checkpoint(ckpt_model_output)
+    ###end of model training logic
     
-    # Upload the model pth file to GCS
-    model_pth_path = f'{vertex_run_name}/pth_model_artifacts/tft_model.pth'
-    step_utils.upload_file_to_gcs(project, artifact_bucket, pth_model_output, model_pth_path)
-    
-    # Upload the model ckpt file to GCS
-    model_ckpt_path = f'{vertex_run_name}/ckpt_model_artifacts/tft_model.ckpt'
-    step_utils.upload_file_to_gcs(project, artifact_bucket, ckpt_model_output, model_ckpt_path)
-    ##end of model training logic
-    
-    logger.info(f'Model trained and saved to GCS: gs://{artifact_bucket}/{model_ckpt_path}')
+    #Saving the model pth and ckpt file to GCS
+    model_pth_path = f'{vertex_run_name}/training_artifacts/tft_model_artifact/tft_model_pth.pth'
+    model_ckpt_path = f'{vertex_run_name}/training_artifacts/ckpt_model_artifact/tft_model_ckpt.ckpt'
+
+    logger.info(f'Archiving preprocessed data to GCS path: gs://{artifact_bucket}/{vertex_run_name}/training_artifacts/')
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        pth_model_output,
+        model_pth_path
+    )
+    step_utils.upload_file_to_gcs(
+        project,
+        artifact_bucket,
+        ckpt_model_output,
+        model_ckpt_path
+    )
+    logger.info(f'Model trained and archived to GCS path: gs://{artifact_bucket}/{vertex_run_name}/training_artifacts/')
     
     run.log_params({
         'TRAINING_OUTPUT_pth_model_artifact_uri': f'gs://{artifact_bucket}/{model_pth_path}',
         'TRAINING_OUTPUT_ckpt_model_artifact_uri': f'gs://{artifact_bucket}/{model_ckpt_path}'
     })
-    logger.info('Model artifact URI logged as a parameter in experiment run')
+    logger.info('Model artifact URI logged as a parameter to experiment run')

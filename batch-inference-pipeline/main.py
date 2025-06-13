@@ -1,29 +1,32 @@
 from kfp.compiler import Compiler
+
 import google.cloud.aiplatform as aiplatform
-import configurations.pipeline_config as pipeline_config
+
 from pipelines.batch_inference_pipeline import batch_inference_pipeline
+import configurations.pipeline_config as pipeline_config
 
-#compiling the pipeline
-compiler = Compiler()
-compiler.compile(
-    pipeline_func = batch_inference_pipeline,
-    package_path = pipeline_config.Root.PIPELINE_PACKAGE_YAML_PATH
-)
+def main():
+    #compiling the pipeline
+    compiler = Compiler()
+    compiler.compile(
+        pipeline_func = batch_inference_pipeline,
+        package_path = pipeline_config.Root.PIPELINE_PACKAGE_YAML_PATH
+    )
 
-#initializing VertexAI
-aiplatform.init(
-    project = pipeline_config.ProjectConfig.PROJECT_ID,
-    location = pipeline_config.ProjectConfig.LOCATION
-)
+    #initializing VertexAI
+    aiplatform.init(
+        project = pipeline_config.ProjectConfig.PROJECT_ID,
+        location = pipeline_config.ProjectConfig.LOCATION
+    )
 
-#creating training pipeline job
-batch_inference_job = aiplatform.PipelineJob(
-    display_name = pipeline_config.Root.DISPLAY_NAME,
-    template_path = pipeline_config.Root.PIPELINE_PACKAGE_YAML_PATH,
-    pipeline_root = pipeline_config.Root.PIPELINE_ROOT,
-    parameter_values = {},
-    enable_caching = False
-)
+    #creating training pipeline job
+    batch_inference_job = aiplatform.PipelineJob(
+        display_name = pipeline_config.Root.DISPLAY_NAME,
+        template_path = pipeline_config.Root.PIPELINE_PACKAGE_YAML_PATH,
+        pipeline_root = pipeline_config.Root.PIPELINE_ROOT,
+        enable_caching = False
+    )
+    batch_inference_job.submit()
 
 if __name__ == '__main__':
-    batch_inference_job.submit()
+    main()

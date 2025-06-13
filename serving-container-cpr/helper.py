@@ -1,7 +1,9 @@
 import os
+
+from google.cloud.aiplatform.prediction import LocalModel
+
 from src_dir_handler_sdk.handler import CprHandler  
 from src_dir_handler_sdk.predictor import CprPredictor
-from google.cloud.aiplatform.prediction import LocalModel
 
 def main():
     USER_SRC_DIR = 'src_dir_handler_sdk'
@@ -25,7 +27,7 @@ def main():
     print('Local Model Build complete')
 
     local_model.push_image()
-    print('Local Model Pushed to Aritfact Registry')
+    print('Local Model Image Pushed to Aritfact Registry')
     
 if __name__ == '__main__':
     main()

@@ -52,9 +52,6 @@ deployOP = create_custom_training_job_from_component(
     description = pipeline_config.Root.DESCRIPTION
 )
 def training_pipeline(
-    project: str,
-    location: str,
-    vertex_experiment_name: str,
     vertex_run_name: str,
     do_deploy: bool
 ):
@@ -69,55 +66,60 @@ def training_pipeline(
     ):
         #pipeline components
         preprocess_task = preprocessOP(
-            project = project,
-            location = location,
+            project = pipeline_config.ProjectConfig.PROJECT_ID,
+            location = pipeline_config.ProjectConfig.LOCATION,
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
             data_bucket = pipeline_config.ProjectConfig.DATA_BUCKET,
             data_path = pipeline_config.ProjectConfig.DATA_PATH,
-            vertex_experiment_name = vertex_experiment_name,
+            vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             vertex_run_name = vertex_run_name
-        ).set_display_name(pipeline_config.DisplayNames.PREPROCESS_DISPLAY_NAME)
+        )
+        preprocess_task.set_display_name(pipeline_config.DisplayNames.PREPROCESS_DISPLAY_NAME)
 
         dataloader_task = dataloaderOP(
-            project = project,
-            location = location,
+            project = pipeline_config.ProjectConfig.PROJECT_ID,
+            location = pipeline_config.ProjectConfig.LOCATION,
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
-            vertex_experiment_name = vertex_experiment_name,
+            vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             vertex_run_name = vertex_run_name,
             preprocessed_data_input = preprocess_task.outputs['preprocessed_data'],
-        ).set_display_name(pipeline_config.DisplayNames.DATALOADER_DISPLAY_NAME)
+        )
+        dataloader_task.set_display_name(pipeline_config.DisplayNames.DATALOADER_DISPLAY_NAME)
 
         hpt_task = hptOP(
-            project = project,
-            location = location,
+            project = pipeline_config.ProjectConfig.PROJECT_ID,
+            location = pipeline_config.ProjectConfig.LOCATION,
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
-            vertex_experiment_name = vertex_experiment_name,
+            vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             vertex_run_name = vertex_run_name,
             train_loader_input = dataloader_task.outputs['train_loader_output'],
             val_loader_input = dataloader_task.outputs['val_loader_output'],
-        ).set_display_name(pipeline_config.DisplayNames.HPT_DISPLAY_NAME)
+        )
+        hpt_task.set_display_name(pipeline_config.DisplayNames.HPT_DISPLAY_NAME)
 
         training_task = trainingOP(
-            project = project,
-            location = location,
+            project = pipeline_config.ProjectConfig.PROJECT_ID,
+            location = pipeline_config.ProjectConfig.LOCATION,
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
-            vertex_experiment_name = vertex_experiment_name,
+            vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             vertex_run_name = vertex_run_name,
             training_input = dataloader_task.outputs['training_output'],
             train_loader_input = dataloader_task.outputs['train_loader_output'],
             val_loader_input = dataloader_task.outputs['val_loader_output'],
             best_params_input = hpt_task.outputs['best_params_output'],
-        ).set_display_name(pipeline_config.DisplayNames.TRAINING_DISPLAY_NAME)
+        )
+        training_task.set_display_name(pipeline_config.DisplayNames.TRAINING_DISPLAY_NAME)
 
         with dsl.If(
-            do_deploy  == True,
+            do_deploy == True,
             name = 'Deploy Condition'
         ):
             deploy_task = deployOP(
-                project = project,
-                location = location,
+                project = pipeline_config.ProjectConfig.PROJECT_ID,
+                location = pipeline_config.ProjectConfig.LOCATION,
                 artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
-                vertex_experiment_name = vertex_experiment_name,
+                vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
                 vertex_run_name = vertex_run_name,
-            ).set_display_name(pipeline_config.DisplayNames.DEPLOY_DISPLAY_NAME)
+            )
+            deploy_task.set_display_name(pipeline_config.DisplayNames.DEPLOY_DISPLAY_NAME)
             deploy_task.after(training_task)

@@ -12,5 +12,3 @@ refactor code
 get versions for all requirements
 get iam roles list
 rm ^2 commits
-update data directory with all the necessary gcs files.
-add if else logic in model uploading
