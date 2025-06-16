@@ -9,7 +9,7 @@ class CprHandler(PredictionHandler):
     async def handle(self, request: Request):
         try:
             request_body = await request.body()
-            print('Data Received')
+            print('Prediction data received')
             
             request_data = json.loads(request_body.decode('utf-8'))
             print(type(request_data['instances'][0]))
@@ -28,16 +28,16 @@ class CprHandler(PredictionHandler):
                 
             prediction_instances = pd.DataFrame(request_data['instances'][0])
             print(prediction_instances.head())
-            print('DataFrame Created')
+            print('DataFrame created from request data')
 
             df = self._predictor.preprocess(data = prediction_instances)
-            print('Preprocess Done')
+            print('Preprocessing completed')
             
             self._predictor.predict()
-            print('Prediction Done')
+            print('Prediction completed')
             
             prediction_results = self._predictor.post_process(data = df)
-            print('Postprocess Done')
+            print('Postprocessing completed')
             
             json_res = json.dumps(prediction_results)
             

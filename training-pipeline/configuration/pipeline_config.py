@@ -24,47 +24,52 @@ class ControlFlow:
     
 class Dependencies:
     PREPROCESS_PACKAGES = [
-        'pandas',
-        'google-cloud-storage',
-        'numpy',
-        'google-cloud-aiplatform',
-        'gcsfs'
+        'pandas == 2.3.0',
+        'google-cloud-storage == 2.19.0',
+        'numpy == 2.3.0',
+        'google-cloud-aiplatform == 1.97.0',
+        'gcsfs == 2025.5.1'
     ]
     DATALOADER_PACKAGES = [
-        'pandas',
-        'numpy',
-        'pytorch_forecasting',
-        'torch',
-        'google-cloud-storage',
-        'google-cloud-aiplatform'
+        'pandas == 2.3.0',
+        'numpy == 2.3.0',
+        'pytorch_forecasting == 1.4.0',
+        'torch == 2.7.1',
+        'google-cloud-storage == 2.19.0',
+        'google-cloud-aiplatform == 1.97.0'
     ]
     HPT_PACKAGES = [
-        'pytorch_forecasting',
-        'torch',
-        'lightning',
-        'optuna',
-        'statsmodels',
+        'pytorch_forecasting == 1.4.0',
+        'torch == 2.7.1',
+        'lightning == 2.5.1.post0',
+        'optuna == 4.3.0',
+        'statsmodels == 0.14.4',
         'optuna-integration[pytorch_lightning]',
-        'tensorboard',
-        'google-cloud-storage',
-        'google-cloud-aiplatform'
+        'tensorboard == 2.19.0',
+        'google-cloud-storage == 2.19.0',
+        'google-cloud-aiplatform == 1.97.0'
     ]
     TRAINING_PACKAGES = [
-        'pytorch_forecasting',
-        'torch',
-        'lightning',
-        'tensorboard',
+        'pytorch_forecasting == 1.4.0',
+        'torch == 2.7.1',
+        'lightning == 2.5.1.post0',
+        'tensorboard == 2.19.0',
         'pytorch_optimizer',
-        'google-cloud-storage',
-        'google-cloud-aiplatform'
+        'google-cloud-storage == 2.19.0',
+        'google-cloud-aiplatform == 1.97.0'
     ]
     DEPLOY_PACKAGES = [
-        'pandas',
-        'google-cloud-storage',
-        'google-cloud-aiplatform',
-        'fastapi',
+        'pandas == 2.3.0',
+        'google-cloud-storage == 2.19.0',
+        'google-cloud-aiplatform == 1.97.0',
+        'fastapi == 0.115.12'
     ]
-    
+
+class EXTRA_PIP_INDEX_URLS:
+    DATALOADER_PIP_INDEX_URLS = ['https://download.pytorch.org/whl/cpu', 'https://pypi.org/simple']
+    HPT_PIP_INDEX_URLS = ['https://download.pytorch.org/whl/cpu', 'https://pypi.org/simple']
+    TRAINING_PIP_INDEX_URLS = ['https://download.pytorch.org/whl/cpu', 'https://pypi.org/simple']
+        
 class BaseImages:
     MACHINE_BASE_IMAGE = f'{BASE_IMAGE_PATH}'
     

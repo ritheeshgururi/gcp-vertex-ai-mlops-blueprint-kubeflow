@@ -54,7 +54,7 @@ class TrainingConfig:
 class DeployConfig:
     deploy_as_version = True
     if deploy_as_version:
-        PARENT_MODEL = '9077488834081456128' 
+        PARENT_MODEL = '8590537124372021248' 
     SERVING_CONTAINER_IMAGE_URI = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/tft-cpr-serving-container/serving-container-cpr:latest'
     MODEL_DISPLAY_NAME = 'TFT CPR Model'
     SERVING_CONTAINER_PREDICT_ROUTE = '/predict'
@@ -62,6 +62,6 @@ class DeployConfig:
     
     ENDPOINT_DISPLAY_NAME = 'TFT Model Endpoint'
     SERVING_CONTAINER_MACHINE_TYPE = 'n2-standard-2'
-    deploy_to_existing_endpoint = False
+    deploy_to_existing_endpoint = True
     if deploy_to_existing_endpoint:
-        EXISTING_ENDPOINT_ID = '3758865217505722368'
+        EXISTING_ENDPOINT_ID = '5209024297519022080'

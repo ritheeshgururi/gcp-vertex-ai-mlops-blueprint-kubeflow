@@ -1,10 +1,13 @@
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-pandas
-torch ~= 2.1.0
-pytorch-forecasting
-numpy
-fastapi
-google-cloud-storage
+fastapi == 0.114.0
 google-cloud-aiplatform == 1.76.0
-google-cloud-aiplatform[prediction]
+google-cloud-storage == 2.19.0
+lightning == 2.5.1.post0
+lightning-utilities == 0.14.3
+numpy == 1.26.4
+pandas == 2.2.3
+pytorch-forecasting == 1.4.0
+pytorch-lightning == 2.5.1.post0
+torch == 2.1.2+cpu
+torchmetrics == 1.7.3

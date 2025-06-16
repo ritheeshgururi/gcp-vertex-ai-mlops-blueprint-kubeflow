@@ -4,7 +4,7 @@ class BatchPredictionJobConfig:
     BATCH_PREDICTION_JOB_NAME = 'TFT Batch Prediction'
     INPUT_URI = 'gs://batch-prediction-volume-forecasting/input/input.jsonl'
     OUTPUT_URI = 'gs://batch-prediction-volume-forecasting/output/'
-    MODEL_RESOURCE_NAME = 'projects/848202130152/locations/asia-south1/models/9077488834081456128'
+    MODEL_RESOURCE_NAME = 'projects/848202130152/locations/asia-south1/models/8590537124372021248'
     DEPLOY_COMPUTE = 'n2-standard-2'
     REQUEST_FORMAT = 'jsonl'
     PREDICTIONS_FORMAT = 'jsonl'

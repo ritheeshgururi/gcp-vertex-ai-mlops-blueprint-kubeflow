@@ -40,7 +40,7 @@ def main():
     LOCATION = 'asia-south1'
     GCS_BUCKET = 'online-prediction-volume-forecasting'
     DATA_PATH = 'input/endpoint_prediction_dataset.csv'
-    ENDPOINT_ID = '1630914393573163008'
+    ENDPOINT_ID = 'projects/848202130152/locations/asia-south1/endpoints/5209024297519022080'
 
     endpoint_prediction(
         project = PROJECT_ID,

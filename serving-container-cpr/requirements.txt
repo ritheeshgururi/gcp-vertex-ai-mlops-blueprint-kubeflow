@@ -1,7 +1,9 @@
-numpy
-pandas
-torch
-fastapi
-pytorch-forecasting
+torch == 2.1.2
+--extra-index-url https://download.pytorch.org/whl/cpu
+numpy == 1.26.4
+pandas == 2.2.3
+pytorch-forecasting == 1.3.0
+fastapi == 0.114.0
+google-cloud-storage == 2.19.0
 google-cloud-aiplatform == 1.76.0
 google-cloud-aiplatform[prediction]

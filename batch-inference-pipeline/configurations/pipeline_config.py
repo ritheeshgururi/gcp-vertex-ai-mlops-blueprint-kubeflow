@@ -16,9 +16,9 @@ class ProjectConfig:
 
 class Dependencies:
     BATCH_PACKAGES = [
-        'pandas',
-        'google-cloud-storage',
-        'google-cloud-aiplatform'
+        'pandas ==  2.3.0',
+        'google-cloud-storage == 2.19.0',
+        'google-cloud-aiplatform == 1.97.0'
     ]
 
 class BaseImages:

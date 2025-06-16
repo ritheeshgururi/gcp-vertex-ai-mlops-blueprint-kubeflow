@@ -27,7 +27,7 @@ def main():
     with aiplatform.start_run(run_name) as run:
         #creating training pipeline job
         training_pipeline_job = aiplatform.PipelineJob(
-            display_name = pipeline_config.Root.DISPLAY_NAME,
+            display_name = pipeline_config.Root.DISPLAY_NAME + f' - {run_name}',
             template_path = pipeline_config.Root.PIPELINE_PACKAGE_YAML_PATH,
             pipeline_root = pipeline_config.Root.PIPELINE_ROOT,
             parameter_values = {

@@ -32,7 +32,7 @@ class CprPredictor(ABC):
                 'music_fest'
             ]
 
-            print('Data received and read here in preprocess')
+            print('Prediction data received, preprocessing started')
             data['date'] = pd.to_datetime(data['date'])
 
             #add time index
@@ -46,11 +46,10 @@ class CprPredictor(ABC):
             data['log_volume'] = np.log(data.volume + 1e-8)
             data['avg_volume_by_sku'] = data.groupby(['time_idx', 'sku'], observed=True).volume.transform('mean')
             data['avg_volume_by_agency'] = data.groupby(['time_idx', 'agency'], observed=True).volume.transform('mean')
-            print('add additioinal features')
+            print('Preprocessing: Adding additional features')
 
             data[special_days] = data[special_days].apply(lambda x: x.map({0: '-', 1: x.name})).astype('category')
             max_encoder_length = 24
-            print('convert special days to category')
             print(data.info())
 
             batch_dataset = TimeSeriesDataSet(
@@ -84,34 +83,37 @@ class CprPredictor(ABC):
                 add_target_scales = True,
                 add_encoder_length = True
             )
-            print('create time series dataset')
+            print('Preprocessing: TimeseriesDataSet object created')
 
             self._batch_dataloader = batch_dataset.to_dataloader(train = False, batch_size = 128, num_workers = 3)
-            print('create dataloader')
+            print('Dataloader created')
         except Exception as e:
-            print('PreProcess Exception: ', e)
+            print('Exception during preprocessing: ', e)
         return data
     
     def predict(self):
         try:
+            print('Starting prediction')
             self._raw_predictions = self._best_tft.predict(self._batch_dataloader, mode = 'raw', return_index = True, return_x = True)
+            print('Prediction completed')
         except Exception as e:
-            print('Predict Exception: ', e)
+            print('Exception during prediction: ', e)
         
     def post_process(self, data:pd.DataFrame):
         try:
+            print('Postprocessing started')
             predictions_df = data.copy()
             predictions_df['predicted_volume'] = np.nan
             predictions_df['date'] = predictions_df['date'].astype(str)
-            print('convert date to string')
+            print('Postprocessing: Converting date to string')
 
             median_predictions = self._raw_predictions.output.prediction.cpu().numpy()[:,:,4] 
-            print('get median predictions')
+            print('Postprocessing: Extracting median predictions')
 
             for i, row in self._raw_predictions.index.iterrows():
                 predictions_df.loc[(predictions_df['agency'] == row['agency']) & (predictions_df['sku'] == row['sku']), 'predicted_volume'] = median_predictions[i][0]
-            print('create final df with predictions')
+            print('Postprocessing: Creating final DataFrame with predictions')
         except Exception as e:
-            print('PostProcess Exception: ', e)
+            print('Exception during postprocessing: ', e)
         
-        return predictions_df.to_dict(orient='records')
+        return predictions_df.to_dict(orient = 'records')
