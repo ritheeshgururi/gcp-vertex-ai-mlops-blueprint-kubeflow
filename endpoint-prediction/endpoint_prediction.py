@@ -16,7 +16,7 @@ def endpoint_prediction(
     print(f'Using endpoint: {endpoint.display_name} ({endpoint.name})')
 
     #download and process data
-    print('Streaming prediction data from GCS path: gs://{gcs_bucket}/{data_path} with pandas using gcsfs')
+    print(f'Streaming prediction data from GCS path: gs://{gcs_bucket}/{data_path} with pandas using gcsfs')
     data = pd.read_csv(f'gs://{gcs_bucket}/{data_path}')
     data_list = data.values.tolist()
     

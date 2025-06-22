@@ -83,10 +83,11 @@ def dataloader_step(
             'soda_volume',
             'avg_max_temp',
             'avg_volume_by_agency',
-            'avg_volume_by_sku',
+            'avg_volume_by_sku'
         ],
         target_normalizer = GroupNormalizer(
-            groups = ['agency', 'sku'], transformation = target_normalizer_transformation
+            groups = ['agency', 'sku'],
+            transformation = target_normalizer_transformation
         ),
         add_relative_time_idx = True,
         add_target_scales = True,

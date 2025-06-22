@@ -4,8 +4,8 @@ import configuration.pipeline_config as pipeline_config
 @dsl.component(
     base_image = pipeline_config.BaseImages.MACHINE_BASE_IMAGE,
     packages_to_install = pipeline_config.Dependencies.HPT_PACKAGES,
-    pip_index_urls = pipeline_config.EXTRA_PIP_INDEX_URLS.HPT_PIP_INDEX_URLS,
-    #uncomment below line to use target image if building base image with kfp component build
+    pip_index_urls = pipeline_config.ExtraPipIndexUrls.HPT_PIP_INDEX_URLS,
+    #uncomment below line to use target image when using kfp component build
     # target_image = pipeline_config.TargetImages.HPT_IMAGE
 )
 def hpt_component(

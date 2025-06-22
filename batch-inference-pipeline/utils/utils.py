@@ -1,9 +1,9 @@
 import argparse
 
-#get base image URL from arguments 
+#get base image URL from CLI argument 
 def get_base_image_path():
     parser = argparse.ArgumentParser()
-    parser.add_argument("image_path", type = str, help = "The artifact registry path to the base image that is to be used to build the pipeline components")
+    parser.add_argument("image_path", type = str, help = "The artifact registry URI to be used for building the base image")
     args = parser.parse_args()
     BASE_IMAGE_PATH = args.image_path
     return BASE_IMAGE_PATH

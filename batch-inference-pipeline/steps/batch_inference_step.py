@@ -11,16 +11,21 @@ def batch_inference_step():
         location = BatchPredictionJobConfig.LOCATION
     )
 
+    logger.info('Instantiating Model Registry Model resource')
+    model = aiplatform.Model(
+        model_name = BatchPredictionJobConfig.MODEL_RESOURCE_NAME
+    )
+    logger.info('Model Registry Model resource fetched succesfully')
+
     logger.info('Starting batch inference job')
-    
-    batch_inference_job = aiplatform.BatchPredictionJob.submit(
+    batch_inference_job = model.batch_predict(
         job_display_name = BatchPredictionJobConfig.BATCH_PREDICTION_JOB_NAME,
-        model_name = BatchPredictionJobConfig.MODEL_RESOURCE_NAME,
         instances_format = BatchPredictionJobConfig.REQUEST_FORMAT,
         predictions_format = BatchPredictionJobConfig.PREDICTIONS_FORMAT,
         gcs_source = BatchPredictionJobConfig.INPUT_URI,
         gcs_destination_prefix = BatchPredictionJobConfig.OUTPUT_URI,
-        machine_type = BatchPredictionJobConfig.DEPLOY_COMPUTE,
+        machine_type = BatchPredictionJobConfig.DEPLOY_COMPUTE
     )
-    
+    logger.info('Batch prediction job submitted succesfully')
+
     logger.info(f'Batch inference job: {batch_inference_job.resource_name} submitted successfully')

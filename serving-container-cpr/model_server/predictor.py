@@ -13,7 +13,7 @@ class CprPredictor(ABC):
     
     def load(self, artifacts_uri: str):
         prediction_utils.download_model_artifacts(artifacts_uri)
-        self._best_tft = TemporalFusionTransformer.load_from_checkpoint('tft_model_ckpt.ckpt')
+        self._tft_model = TemporalFusionTransformer.load_from_checkpoint('tft_model_ckpt.ckpt')
     
     def preprocess(self, data:pd.DataFrame):
         try:
@@ -32,27 +32,26 @@ class CprPredictor(ABC):
                 'music_fest'
             ]
 
-            print('Prediction data received, preprocessing started')
+            #start of preprocessing logic
+            print('Preprocessing: Prediction data received, preprocessing started')
             data['date'] = pd.to_datetime(data['date'])
-
-            #add time index
-            print('convert date to datetime')
+            print('Preprocessing: Converted date column to datetime format')
             data['time_idx'] = data['date'].dt.year * 12 + data['date'].dt.month
             data['time_idx'] -= data['time_idx'].min()
-
-            #add features
-            print('created time index')
+            print('Preprocessing: Created time index')
             data['month'] = data['date'].dt.month.astype(str).astype('category')
             data['log_volume'] = np.log(data.volume + 1e-8)
             data['avg_volume_by_sku'] = data.groupby(['time_idx', 'sku'], observed=True).volume.transform('mean')
             data['avg_volume_by_agency'] = data.groupby(['time_idx', 'agency'], observed=True).volume.transform('mean')
             print('Preprocessing: Adding additional features')
-
             data[special_days] = data[special_days].apply(lambda x: x.map({0: '-', 1: x.name})).astype('category')
             max_encoder_length = 24
-            print(data.info())
+            print(f'Preprocessing: {data.info()}')
+            #end of preprocessing logic
 
-            batch_dataset = TimeSeriesDataSet(
+            #start of TimeSeriesDataSet object creation logic
+            print('Preprocessing: Start of TimeSeriesDataSet object creation')
+            time_series_dataset = TimeSeriesDataSet(
                 data,
                 time_idx = 'time_idx',
                 target = 'volume',
@@ -74,18 +73,21 @@ class CprPredictor(ABC):
                     'soda_volume',
                     'avg_max_temp',
                     'avg_volume_by_agency',
-                    'avg_volume_by_sku',
+                    'avg_volume_by_sku'
                 ],
                 target_normalizer = GroupNormalizer(
-                    groups = ['agency', 'sku'], transformation = 'softplus'
+                    groups = ['agency', 'sku'],
+                    transformation = 'softplus'
                 ),
                 add_relative_time_idx = True,
                 add_target_scales = True,
                 add_encoder_length = True
             )
             print('Preprocessing: TimeseriesDataSet object created')
+            #end of TimeSeriesDataSet object creation logic
 
-            self._batch_dataloader = batch_dataset.to_dataloader(train = False, batch_size = 128, num_workers = 3)
+            print('Creating dataloader')
+            self._dataloader = time_series_dataset.to_dataloader(train = False, batch_size = 128, num_workers = 3)
             print('Dataloader created')
         except Exception as e:
             print('Exception during preprocessing: ', e)
@@ -94,7 +96,12 @@ class CprPredictor(ABC):
     def predict(self):
         try:
             print('Starting prediction')
-            self._raw_predictions = self._best_tft.predict(self._batch_dataloader, mode = 'raw', return_index = True, return_x = True)
+            self._raw_predictions = self._tft_model.predict(
+                self._dataloader,
+                mode = 'raw',
+                return_index = True,
+                return_x = True
+            )
             print('Prediction completed')
         except Exception as e:
             print('Exception during prediction: ', e)

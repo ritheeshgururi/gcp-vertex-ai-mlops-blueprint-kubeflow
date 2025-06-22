@@ -2,11 +2,11 @@ import os
 
 from google.cloud.aiplatform.prediction import LocalModel
 
-from src_dir_handler_sdk.handler import CprHandler  
-from src_dir_handler_sdk.predictor import CprPredictor
+from model_server.handler import CprHandler  
+from model_server.predictor import CprPredictor
 
 def main():
-    USER_SRC_DIR = 'src_dir_handler_sdk'
+    USER_SRC_DIR = 'model_server'
     PROJECT_ID = 'gcp-vertexai-mlops-blueprint'
     REGION = 'asia-south1'
     REPOSITORY = 'tft-cpr-serving-container'
@@ -14,7 +14,6 @@ def main():
     BASE_IMAGE = 'python:3.11-slim-bookworm'
 
     print('Local Model Build Start')
-
     local_model = LocalModel.build_cpr_model(
         USER_SRC_DIR,
         f'{REGION}-docker.pkg.dev/{PROJECT_ID}/{REPOSITORY}/{IMAGE}',

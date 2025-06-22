@@ -16,13 +16,10 @@ class CprHandler(PredictionHandler):
             try:
                 if request_data['request_type'] == 'Online':
                     is_online_prediction = True
-                    data_list = json.loads(request_data['instances'][0])
                 else:
                     is_online_prediction = False
-                    data_list = request_data['instances'][0]
             except:
                 is_online_prediction = False
-                data_list = request_data['instances'][0]
             
             print('Online Prediction Detected' if is_online_prediction else 'Batch Prediction Detected')
                 
@@ -39,13 +36,13 @@ class CprHandler(PredictionHandler):
             prediction_results = self._predictor.post_process(data = df)
             print('Postprocessing completed')
             
-            json_res = json.dumps(prediction_results)
+            respone_json = json.dumps(prediction_results)
             
             if is_online_prediction:
-                return Response(content = json_res, media_type = 'application/json')
+                return Response(content = respone_json, media_type = 'application/json')
             else:
                 json_output = json.dumps({'predictions':[prediction_results]})
-                return Response(content=json_output)
+                return Response(content = json_output)
         
         except Exception as e:
             message = 'Exception : ' + str(e)

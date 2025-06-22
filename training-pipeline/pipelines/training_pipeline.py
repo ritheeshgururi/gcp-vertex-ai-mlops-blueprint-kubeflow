@@ -82,7 +82,7 @@ def training_pipeline(
             artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
             vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             vertex_run_name = vertex_run_name,
-            preprocessed_data_input = preprocess_task.outputs['preprocessed_data'],
+            preprocessed_data_input = preprocess_task.outputs['preprocessed_data']
         )
         dataloader_task.set_display_name(pipeline_config.DisplayNames.DATALOADER_DISPLAY_NAME)
 
@@ -93,7 +93,7 @@ def training_pipeline(
             vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
             vertex_run_name = vertex_run_name,
             train_loader_input = dataloader_task.outputs['train_loader_output'],
-            val_loader_input = dataloader_task.outputs['val_loader_output'],
+            val_loader_input = dataloader_task.outputs['val_loader_output']
         )
         hpt_task.set_display_name(pipeline_config.DisplayNames.HPT_DISPLAY_NAME)
 
@@ -106,7 +106,7 @@ def training_pipeline(
             training_input = dataloader_task.outputs['training_output'],
             train_loader_input = dataloader_task.outputs['train_loader_output'],
             val_loader_input = dataloader_task.outputs['val_loader_output'],
-            best_params_input = hpt_task.outputs['best_params_output'],
+            best_params_input = hpt_task.outputs['best_params_output']
         )
         training_task.set_display_name(pipeline_config.DisplayNames.TRAINING_DISPLAY_NAME)
 
@@ -119,7 +119,7 @@ def training_pipeline(
                 location = pipeline_config.ProjectConfig.LOCATION,
                 artifact_bucket = pipeline_config.ProjectConfig.ARTIFACT_BUCKET,
                 vertex_experiment_name = pipeline_config.ExperimentConfig.EXPERIMENT_NAME,
-                vertex_run_name = vertex_run_name,
+                vertex_run_name = vertex_run_name
             )
             deploy_task.set_display_name(pipeline_config.DisplayNames.DEPLOY_DISPLAY_NAME)
             deploy_task.after(training_task)

@@ -65,7 +65,7 @@ class Dependencies:
         'fastapi == 0.115.12'
     ]
 
-class EXTRA_PIP_INDEX_URLS:
+class ExtraPipIndexUrls:
     DATALOADER_PIP_INDEX_URLS = ['https://download.pytorch.org/whl/cpu', 'https://pypi.org/simple']
     HPT_PIP_INDEX_URLS = ['https://download.pytorch.org/whl/cpu', 'https://pypi.org/simple']
     TRAINING_PIP_INDEX_URLS = ['https://download.pytorch.org/whl/cpu', 'https://pypi.org/simple']

@@ -34,7 +34,7 @@ def main():
                 'vertex_run_name': run_name,
                 'do_deploy': pipeline_config.ControlFlow.DO_DEPLOY
             },
-            enable_caching = True,
+            enable_caching = True
         )
 
         #run/submit the job
