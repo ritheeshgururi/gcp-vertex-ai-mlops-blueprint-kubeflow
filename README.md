@@ -1,16 +1,16 @@
-# gcp-vertex-ai-mlops-blueprint
+# **GCP Vertex AI MLOps Blueprint - Kubeflow**
 
 This repository provides an end-to-end MLOps workflow blueprint on GCP Vertex AI using Kubeflow. This comprises of the training, serving, batch inference, and online prediction of a Temporal Fusion Transformer model for time series forecasting.
 
-The TFT model is trained on the open-source [Volume Forecasting dataset](https://www.kaggle.com/datasets/utathya/future-volume-forecasting), using this [Pytorch Forecasting](https://pytorch-forecasting.readthedocs.io/en/stable/) guide.
+The TFT model is trained on the open-source [Volume Forecasting dataset](https://www.kaggle.com/datasets/utathya/future-volume-prediction/data), using this [Pytorch Forecasting](https://pytorch-forecasting.readthedocs.io/en/stable/tutorials/stallion.html) guide.
 
-This README only details the setup instructions and steps to execute training and inference runs. For a detailed walkthrough of the code and the architectural decisions in this project, please refer to this Medium article: **[link]**
+> This README only details the setup instructions and steps to execute training and inference runs. For a detailed walkthrough of the code and the architectural decisions in this project, please refer to [this Medium article](https://medium.com/@ritheeshgururi187/end-to-end-mlops-in-the-cloud-with-kubeflow-a-blueprint-for-gcp-vertex-ai-1092cd747ad8)
 
 ## Project Structure
 
 There are four main directories in this project, each responsible for a specific stage of the MLOps lifecycle:
 
--   `training-pipeline/`: Contains a Kubeflow pipeline for model training and deployment, to be executed on Vertex Pipelines.
+-   `training-pipeline/`: Contains a Kubeflow pipeline for model training and deployment, to be executed on Vertex Pipelines, with experiment tracking integrated using Vertex Experiments.
 -   `serving-container-cpr/`: A model serving container built using Vertex AI Custom Prediction Routines.
 -   `batch-inference-pipeline/`: Contains a Kubeflow pipeline to run Vertex AI batch prediction job.
 -   `endpoint-prediction/`: A sample script to perform online predictions using a deployed model endpoint.
@@ -203,7 +203,7 @@ Similar to the training pipeline,
 ---
 ## IAM Permissions
 
-This project was developed using impersonated service account credentials with broad permissions (`Owner` role). For environments that follow the principle of least privilege, grant the service account used for pipeline execution the necessary IAM roles for the following services:
+> This project was developed using impersonated service account credentials with broad permissions (`Owner` role). For environments that follow the principle of least privilege, grant the service account used for pipeline execution the necessary IAM roles for the following services:
 
 -   **Vertex AI**
 -   **Cloud Storage**
