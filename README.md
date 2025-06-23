@@ -55,7 +55,7 @@ python3 helper.py
 ### 2. Run the Training Pipeline
 #### **Configuration**
 
-Upload the `data/original_merged_dataset.csv` file to a GCS bucket in a location of your choice
+Upload the `training-dataset/original_merged_dataset.csv` file to a GCS bucket in a location of your choice
 
 Modify the following config variables in the files in `training-pipeline/configuration/`:
 
