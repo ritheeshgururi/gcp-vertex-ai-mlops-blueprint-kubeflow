@@ -7,3 +7,5 @@ fastapi == 0.114.0
 google-cloud-storage == 2.19.0
 google-cloud-aiplatform == 1.76.0
 google-cloud-aiplatform[prediction]
+kfp == 2.13.0
+google-cloud-pipeline-components

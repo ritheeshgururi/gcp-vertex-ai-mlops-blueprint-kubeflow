@@ -26,7 +26,7 @@ def deploy_step(
 
     logger.info('Uploading model resource to Model Registry')
     model = aiplatform.Model.upload(
-        parent_model = DeployConfig.PARENT_MODEL if DeployConfig.deploy_as_version else None,
+        parent_model = DeployConfig.PARENT_MODEL if DeployConfig.upload_model_as_version else None,
         display_name = DeployConfig.MODEL_DISPLAY_NAME,
         artifact_uri = f'gs://{artifact_bucket}/{vertex_run_name}/training_artifacts/ckpt_model_artifact/',
         serving_container_image_uri = DeployConfig.SERVING_CONTAINER_IMAGE_URI,
@@ -61,7 +61,7 @@ def deploy_step(
     logger.info('Start of deploying model to endpoint')
     deployed_model_endpoint = model.deploy(
         endpoint = endpoint,
-        machine_type = DeployConfig.SERVING_CONTAINER_MACHINE_TYPE
+        machine_type = DeployConfig.ENDPOINT_MACHINE_TYPE
     )
     logger.info('Model deployed to endpoint')
     ###end of model endpoint deployment

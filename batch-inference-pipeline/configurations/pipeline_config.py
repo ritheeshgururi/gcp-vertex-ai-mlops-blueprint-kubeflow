@@ -10,9 +10,6 @@ class Root:
 class ProjectConfig:
     PROJECT_ID = 'gcp-vertexai-mlops-blueprint'
     LOCATION = 'asia-south1'
-    BUCKET_NAME = 'online-prediction-volume-forecasting'
-    DATA_PATH = 'input/endpoint_prediction_dataset.csv'
-    ENDPOINT_ID = '427784789995552768'
 
 class Dependencies:
     BATCH_PACKAGES = [

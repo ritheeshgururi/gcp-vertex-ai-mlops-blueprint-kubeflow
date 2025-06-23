@@ -52,16 +52,17 @@ class TrainingConfig:
     tft_reduce_on_plateau_patience = 4
     
 class DeployConfig:
-    deploy_as_version = True
-    if deploy_as_version:
+    upload_model_as_version = True
+    if upload_model_as_version:
         PARENT_MODEL = '8590537124372021248' 
     SERVING_CONTAINER_IMAGE_URI = 'asia-south1-docker.pkg.dev/gcp-vertexai-mlops-blueprint/tft-cpr-serving-container/serving-container-cpr:latest'
     MODEL_DISPLAY_NAME = 'TFT CPR Model'
     SERVING_CONTAINER_PREDICT_ROUTE = '/predict'
     SERVING_CONTAINER_HEALTH_ROUTE = '/health'
-    
-    ENDPOINT_DISPLAY_NAME = 'TFT Model Endpoint'
-    SERVING_CONTAINER_MACHINE_TYPE = 'n2-standard-2'
+
     deploy_to_existing_endpoint = True
     if deploy_to_existing_endpoint:
         EXISTING_ENDPOINT_ID = '5209024297519022080'
+    else:
+        ENDPOINT_DISPLAY_NAME = 'TFT Model Endpoint'
+    ENDPOINT_MACHINE_TYPE = 'n2-standard-2'
